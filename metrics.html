@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UE - Metrics</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="scripts.js"></script>
+</head>
+<body>
+  <header>
+    <h1>URBAN</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="metrics.html" class="active">Metrics</a>
+    </nav>
+    <button id="theme-toggle">🌙</button>
+  </header>
+
+  <main class="metrics">
+    <h2>Metrics Dashboard</h2>
+    
+    <section class="cards">
+      <div class="card">
+        <h3>Share Price (NZD)</h3>
+        <p id="share-price">—</p>
+      </div>
+      <div class="card">
+        <h3>3M Return</h3>
+        <p id="3m-return">—</p>
+      </div>
+      <div class="card">
+        <h3>1Y Return</h3>
+        <p id="1y-return">—</p>
+      </div>
+      <div class="card">
+        <h3>All Time Return</h3>
+        <p id="alltime-return">—</p>
+      </div>
+      <div class="card">
+        <h3>Company Market Cap (NZD)</h3>
+        <p id="marketcap">—</p>
+      </div>
+      <div class="card">
+        <h3>BTC Price (NZD)</h3>
+        <p id="btc-price">—</p>
+      </div>
+      <div class="card">
+        <h3>BTC Holdings</h3>
+        <p id="btc-holdings">—</p>
+      </div>
+      <div class="card">
+        <h3>BTC NAV</h3>
+        <p id="btc-nav">—</p>
+      </div>
+      <div class="card">
+        <h3>mNAV</h3>
+        <p id="m-nav">—</p>
+      </div>
+      <div class="card">
+        <h3>Debt</h3>
+        <p id="debt">—</p>
+      </div>
+      <div class="card">
+        <h3>Debt/BTC NAV</h3>
+        <p id="debt-btcnav">—</p>
+      </div>
+
+      <div class="card">
+        <h3>BTC Per Share</h3>
+        <p id="btc-pershare">—</p>
+      </div>
+      <div class="card">
+        <h3>BTC Valuation</h3>
+        <p id="btc-valuation">—</p>
+      </div>
+      <div class="card">
+        <h3>Shares</h3>
+        <p id="total-shares">—</p>
+      </div>
+      <div class="card">
+        <h3>Share Price (BTC)</h3>
+        <p id="share-price">—</p>
+      </div>
+      <div class="card">
+        <h3>MSTR Comp Valuation</h3>
+        <p id="mstrcomp-valuation">—</p>
+      </div>
+      <div class="card">
+        <h3>Current Rate Valuation (NZD)</h3>
+        <p id="total-valuation">—</p>
+      </div>
+    </section>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="btc-tab">BTC Detail</button>
+      <button class="tab-btn" data-tab="shares-tab">Shares Detail</button>
+      <button class="tab-btn" data-tab="cash-tab">Cash Detail</button>
+<button class="tab-btn" id="screenshot-btn">📸 Save Screenshot</button>
+    </div>
+
+    <section id="btc-tab" class="tab-content active">
+      <h3>BTC Holdings Breakdown</h3>
+      <pre id="btc-detail">—</pre>
+    </section>
+
+    <section id="shares-tab" class="tab-content">
+      <h3>Shares Detail</h3>
+      <pre id="shares-detail">—</pre>
+    </section>
+
+     <section id="cash-tab" class="tab-content">
+      <h3>Cash Detail</h3>
+      <pre id="cash-detail">—</pre>
+    </section>
+
+   
+  </main>
+
+  <footer>
+    <p>© 2025 Urban Environmental</p>
+  </footer>
+</body>
+</html>

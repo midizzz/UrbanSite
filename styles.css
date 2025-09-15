@@ -1,0 +1,152 @@
+/* General layout */
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #fdfdfd;
+  color: #111;
+  transition: background 0.3s, color 0.3s;
+}
+
+
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-bottom: 1px solid #ccc;
+}
+
+header h1 {
+  margin: 0;
+  color: #4682B4;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+}
+
+h1 {
+  margin: 0;
+  color: #4682B4;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+}
+
+h2 {
+  margin: 0;
+  color: #4682B4;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 400;
+}
+
+nav {
+  align-items: right;
+}
+
+nav a {
+  margin: 0 0.5rem;
+  text-decoration: none;
+  color: inherit;
+}
+
+nav a.active {
+  font-weight: bold;
+/*  text-decoration: underline;
+  color: #4682B4
+*/
+}
+
+#theme-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+main {
+  padding: 2rem;
+}
+
+.hero {
+  text-align: center;
+  margin: 3rem 0;
+}
+
+/* Cards */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  padding: 1rem;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: background 0.3s, color 0.3s;
+}
+
+.card.highlight {
+  border: 2px solid #4682B4;
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tab-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  background: #eee;
+  cursor: pointer;
+}
+
+.tab-btn.active {
+  background: #4682B4;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* Footer */
+footer {
+  text-align: center;
+  padding: 1rem;
+  border-top: 1px solid #ccc;
+}
+
+/* Dark mode */
+body.dark {
+  background: #111;
+  color: #fdfdfd;
+}
+
+body.dark .card {
+  background: #222;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+body.dark .tab-btn {
+  background: #333;
+  border-color: #666;
+  color: #fdfdfd;
+}
+
+body.dark .tab-btn.active {
+  background: #4682B4;
+}
