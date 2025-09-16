@@ -1,13 +1,11 @@
 /* General layout */
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
+  font-family: 'Montserrat', system-ui, sans-serif;
   background: #fdfdfd;
   color: #111;
   transition: background 0.3s, color 0.3s;
 }
-
-
 
 header {
   display: flex;
@@ -21,35 +19,45 @@ header h1 {
   margin: 0;
   color: #4682B4;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 400;
+  font-weight: 200;
 }
 
 h1 {
   margin: 0;
   color: #4682B4;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 400;
+  font-weight: 200;
 }
 
 h2 {
   margin: 0;
-  color: #4682B4;
+  color: #093f7c;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 400;
+  font-weight: 250;
+}
+
+h3 {
+  margin: 0;
+  color: #2f2e2e;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 250;
 }
 
 nav {
-  align-items: right;
+  align-items: center;
 }
 
 nav a {
   margin: 0 0.5rem;
+  color: #2f2e2e;
+  font-family: 'Montserrat', sans-serif;
   text-decoration: none;
-  color: inherit;
 }
 
 nav a.active {
-  font-weight: bold;
+  font-weight: 400;
+  color: #093f7c;
+  font-family: 'Montserrat', sans-serif;
 /*  text-decoration: underline;
   color: #4682B4
 */
@@ -136,6 +144,13 @@ body.dark {
   color: #fdfdfd;
 }
 
+body.dark h3{
+  margin: 0;
+  color: #fdfdfd;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 250;
+}
+
 body.dark .card {
   background: #222;
   box-shadow: 0 2px 6px rgba(0,0,0,0.5);
@@ -149,4 +164,9 @@ body.dark .tab-btn {
 
 body.dark .tab-btn.active {
   background: #4682B4;
+}
+
+body.dark .tab-content {
+  border: 1px solid #222;
+  background: #222;
 }

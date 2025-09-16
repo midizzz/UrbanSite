@@ -1,9 +1,24 @@
-// Light/Dark mode toggle
+// Light/Dark mode toggle with persistence
 const themeToggle = document.getElementById("theme-toggle");
+
 if (themeToggle) {
+  // Check saved theme on load
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+    themeToggle.textContent = "☀️";
+  }
+
   themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark");
-    themeToggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+
+    if (document.body.classList.contains("dark")) {
+      themeToggle.textContent = "☀️";
+      localStorage.setItem("theme", "dark");
+    } else {
+      themeToggle.textContent = "🌙";
+      localStorage.setItem("theme", "light");
+    }
   });
 }
 
@@ -42,46 +57,77 @@ async function loadMetrics() {
     const priceRes = await fetch("https://mempool.space/api/v1/prices");
     const priceData = await priceRes.json();
     const btcPrice = priceData.USD;
-    document.getElementById("btc-price").textContent = `$${btcPrice.toLocaleString()}`;
+    const btcPriceElement = document.getElementById("btc-price");
+    if (btcPriceElement) {
+      btcPriceElement.textContent = `$${btcPrice.toLocaleString()}`;
+    }
 
-    // Fetch BTC balance  //keeping this temporarily but detail section could show  abreakdown of the share types nad the corresponding btc purchased by them
+    // Fetch BTC balance
     const addr = "bc1qpc22mhahknxt5t6samalxsf4mq5wvarar7823g";
     const btcRes = await fetch(`https://mempool.space/api/address/${addr}`);
     const btcData = await btcRes.json();
     const sats = btcData.chain_stats.funded_txo_sum - btcData.chain_stats.spent_txo_sum;
     const btcHoldings = sats / 1e8;
-    document.getElementById("btc-holdings").textContent = btcHoldings.toFixed(4) + " BTC";
-    document.getElementById("btc-detail").textContent = JSON.stringify(btcData, null, 2);
+    const btcHoldingsElement = document.getElementById("btc-holdings");
+    if (btcHoldingsElement) {
+      btcHoldingsElement.textContent = btcHoldings.toFixed(4) + " BTC";
+    }
+    const btcDetailElement = document.getElementById("btc-detail");
+    if (btcDetailElement) {
+      btcDetailElement.textContent = JSON.stringify(btcData, null, 2);
+    }
 
     // BTC valuation
     const btcValuation = btcHoldings * btcPrice;
-    document.getElementById("btc-valuation").textContent = `$${btcValuation.toLocaleString()}`;
+    const btcValuationElement = document.getElementById("btc-valuation");
+    if (btcValuationElement) {
+      btcValuationElement.textContent = `$${btcValuation.toLocaleString()}`;
+    }
 
     // Shares
     const shareRes = await fetch("shares.json");
     const shareData = await shareRes.json();
     const totalShares = shareData.totalShares;
-    document.getElementById("total-shares").textContent = totalShares;
+    const totalSharesElement = document.getElementById("total-shares");
+    if (totalSharesElement) {
+      totalSharesElement.textContent = totalShares;
+    }
 
     // Share price (BTC basis)
     const sharePrice = btcHoldings / totalShares;
-    document.getElementById("share-price").textContent = sharePrice.toFixed(8) + " BTC";
+    const sharePriceElement = document.getElementById("share-price");
+    if (sharePriceElement) {
+      sharePriceElement.textContent = sharePrice.toFixed(8) + " BTC";
+    }
 
     const sharesValuation = sharePrice * totalShares;
-    document.getElementById("shares-valuation").textContent = sharesValuation.toFixed(4) + " BTC";
-    document.getElementById("shares-detail").textContent = JSON.stringify(shareData, null, 2);
+    const sharesValuationElement = document.getElementById("shares-valuation");
+    if (sharesValuationElement) {
+      sharesValuationElement.textContent = sharesValuation.toFixed(4) + " BTC";
+    }
+    const sharesDetailElement = document.getElementById("shares-detail");
+    if (sharesDetailElement) {
+      sharesDetailElement.textContent = JSON.stringify(shareData, null, 2);
+    }
 
     // Total valuation
-    document.getElementById("total-valuation").textContent = (btcHoldings).toFixed(4) + " BTC";
+    const totalValuationElement = document.getElementById("total-valuation");
+    if (totalValuationElement) {
+      totalValuationElement.textContent = (btcHoldings).toFixed(4) + " BTC";
+    }
   } catch (err) {
     console.error("Error loading metrics:", err);
   }
 }
 
-if (document.querySelector("main.metrics")) {
-  // Load html2canvas dynamically
-  const script = document.createElement("script");
-  script.src = "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
-  script.onload = loadMetrics;
-  document.body.appendChild(script);
-}
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.querySelector("main.metrics")) {
+    // Load html2canvas dynamically
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
+    script.onload = loadMetrics;
+    document.body.appendChild(script);
+  } else if (document.querySelector("main.home")) {
+    loadMetrics();
+  }
+});
