@@ -1,8 +1,22 @@
-// Light/Dark mode toggle with persistence
-const themeToggle = document.getElementById("theme-toggle");
+/* scripts.js — merged & fixed
+   - Put your Google API key and Sheet ID below.
+   - If your sheet tab has a name (e.g. "Metrics"), use "Metrics!A2:B150" for sheetRange.
+*/
 
-if (themeToggle) {
-  // Check saved theme on load
+// ---------- CONFIG ----------
+const apiKey = "AIzaSyCObyC0iqvLvY_mG_u2qoHoed9kYtiubgQ";       // <-- paste your API key
+const sheetId = "1QTwjtA4qDbF7FCPh4v0QGKmFiCT0_9brNb4LSEJbaOI";           // <-- paste your sheet ID
+const sheetRange = "Metrics!A2:B150";           // <-- or "Sheet1!A2:B150" (include tab name)
+const sheetFetchTimeoutMs = 8000;               // timeout for sheet fetch (ms)
+
+const mempoolPriceUrl = "https://mempool.space/api/v1/prices";
+const mempoolAddrPrefix = "https://mempool.space/api/address/";
+
+// ---------- THEME TOGGLE ----------
+function initThemeToggle() {
+  const themeToggle = document.getElementById("theme-toggle");
+  if (!themeToggle) return;
+
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
     document.body.classList.add("dark");
@@ -11,7 +25,6 @@ if (themeToggle) {
 
   themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark");
-
     if (document.body.classList.contains("dark")) {
       themeToggle.textContent = "☀️";
       localStorage.setItem("theme", "dark");
@@ -22,25 +35,33 @@ if (themeToggle) {
   });
 }
 
-// Tabs
-const tabButtons = document.querySelectorAll(".tab-btn");
-tabButtons.forEach(btn =>
-  btn.addEventListener("click", () => {
-    tabButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+// ---------- TABS ----------
+function initTabs() {
+  const tabButtons = document.querySelectorAll(".tab-btn");
+  tabButtons.forEach(btn =>
+    btn.addEventListener("click", () => {
+      tabButtons.forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
 
-    const tabs = document.querySelectorAll(".tab-content");
-    tabs.forEach(tab => tab.classList.remove("active"));
+      const tabs = document.querySelectorAll(".tab-content");
+      tabs.forEach(tab => tab.classList.remove("active"));
 
-    const target = document.getElementById(btn.dataset.tab);
-    if (target) target.classList.add("active");
-  })
-);
+      const target = document.getElementById(btn.dataset.tab);
+      if (target) target.classList.add("active");
+    })
+  );
+}
 
-// Screenshot
-const screenshotBtn = document.getElementById("screenshot-btn");
-if (screenshotBtn) {
+// ---------- SCREENSHOT (optional html2canvas) ----------
+function initScreenshot() {
+  const screenshotBtn = document.getElementById("screenshot-btn");
+  if (!screenshotBtn) return;
+
   screenshotBtn.addEventListener("click", async () => {
+    if (typeof html2canvas !== "function") {
+      alert("html2canvas not loaded. Include html2canvas library to use screenshot.");
+      return;
+    }
     const element = document.querySelector("main");
     const canvas = await html2canvas(element);
     const link = document.createElement("a");
@@ -50,73 +71,139 @@ if (screenshotBtn) {
   });
 }
 
-// Load Metrics
-async function loadMetrics() {
+// ---------- UTILITY: update elements by id (handles duplicates) ----------
+function updateElementsById(id, value) {
+  if (!id) return;
+  // Use attribute selector to be resilient to special characters:
+  const elems = document.querySelectorAll(`[id="${id}"]`);
+  if (!elems || elems.length === 0) {
+    // silent — but useful when debugging
+    console.warn(`No element found with id="${id}"`);
+    return;
+  }
+  elems.forEach(el => {
+    // put multiline values into <pre> properly
+    if (el.tagName === "PRE") el.textContent = value;
+    else el.textContent = value;
+  });
+}
+
+// ---------- FETCH BTC PRICE + HOLDINGS ----------
+async function fetchBtcPriceAndHoldings() {
   try {
-    // Fetch BTC price
-    const priceRes = await fetch("https://mempool.space/api/v1/prices");
+    // BTC price (mempool.space)
+    const priceRes = await fetch(mempoolPriceUrl, { cache: "no-store" });
+    if (!priceRes.ok) throw new Error(`Price fetch failed: ${priceRes.status}`);
     const priceData = await priceRes.json();
-    const btcPrice = priceData.USD;
-    const btcPriceElement = document.getElementById("btc-price");
-    if (btcPriceElement) {
-      btcPriceElement.textContent = `$${btcPrice.toLocaleString()}`;
-    }
-
-    // Fetch BTC balance
-    const addr = "bc1qpc22mhahknxt5t6samalxsf4mq5wvarar7823g";
-    const btcRes = await fetch(`https://mempool.space/api/address/${addr}`);
-    const btcData = await btcRes.json();
-    const sats = btcData.chain_stats.funded_txo_sum - btcData.chain_stats.spent_txo_sum;
-    const btcHoldings = sats / 1e8;
-    const btcHoldingsElement = document.getElementById("btc-holdings");
-    if (btcHoldingsElement) {
-      btcHoldingsElement.textContent = btcHoldings.toFixed(4) + " BTC";
-    }
-    const btcDetailElement = document.getElementById("btc-detail");
-    if (btcDetailElement) {
-      btcDetailElement.textContent = JSON.stringify(btcData, null, 2);
-    }
-
-    // Shares
-    const shareRes = await fetch("shares.json");
-    const shareData = await shareRes.json();
-    const totalShares = shareData.totalShares;
-    const totalSharesElement = document.getElementById("total-shares");
-    if (totalSharesElement) {
-      totalSharesElement.textContent = totalShares;
-    }
-
-// === CONFIG ===
-const apiKey = "YOUR_API_KEY_HERE";   // <-- paste your Google API key
-const sheetId = "YOUR_SHEET_ID_HERE"; // <-- paste from your sheet URL
-const range = "A2:B100"; // Adjust if you need more rows (col A = metric ID, col B = value)
-
-// === FETCH DATA FROM GOOGLE SHEETS ===
-async function loadMetrics() {
-  try {
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
-    const res = await fetch(url);
-    const data = await res.json();
-
-    if (!data.values) {
-      console.error("No data returned from Google Sheets:", data);
-      return;
-    }
-
-    // Each row = [id, value]
-    data.values.forEach(([id, value]) => {
-      const el = document.getElementById(id);
+    // try multiple possible shapes
+    const btcPrice = priceData?.USD ?? priceData?.usd ?? priceData?.USD?.toString?.();
+    if (btcPrice != null) {
+      const el = document.getElementById("bitcoin-price");
       if (el) {
-        el.textContent = value;
-      } else {
-        console.warn(`No element found with id="${id}" in HTML`);
+        const number = Number(btcPrice);
+        el.textContent = Number.isFinite(number) ? `$${number.toLocaleString()}` : btcPrice;
       }
-    });
+    }
+
+    // BTC holdings (address)
+    const addr = "bc1qpc22mhahknxt5t6samalxsf4mq5wvarar7823g"; // your address
+    const addrRes = await fetch(`${mempoolAddrPrefix}${addr}`);
+    if (!addrRes.ok) throw new Error(`Address fetch failed: ${addrRes.status}`);
+    const addrData = await addrRes.json();
+
+    const funded = addrData.chain_stats?.funded_txo_sum ?? 0;
+    const spent = addrData.chain_stats?.spent_txo_sum ?? 0;
+    const sats = funded - spent;
+    const btcHoldings = sats / 1e8;
+    updateElementsById("btc-holdings", btcHoldings.toFixed(8) + " BTC");
+    updateElementsById("btc-detail", JSON.stringify(addrData, null, 2));
 
   } catch (err) {
-    console.error("Error loading metrics:", err);
+    console.error("fetchBtcPriceAndHoldings error:", err);
   }
 }
 
-// Run after DOM loads
-document.addEventListener("DOMContentLoaded", loadMetrics);
+// ---------- FETCH SHARES JSON ----------
+async function fetchSharesJson() {
+  try {
+    const res = await fetch("shares.json", { cache: "no-store" });
+    if (!res.ok) {
+      console.warn("shares.json not found or returned non-OK status:", res.status);
+      return;
+    }
+    const data = await res.json();
+    const totalShares = data?.totalShares ?? data?.total_shares ?? null;
+    if (totalShares != null) updateElementsById("total-shares", totalShares);
+    // you can update more share related fields here if shares.json contains them
+    updateElementsById("shares-detail", JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error("fetchSharesJson error:", err);
+  }
+}
+
+// ---------- FETCH GOOGLE SHEETS METRICS ----------
+async function fetchSheetMetrics() {
+  if (!apiKey || !sheetId) {
+    console.warn("Google Sheets config missing (apiKey or sheetId). Skipping sheet fetch.");
+    return;
+  }
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetRange)}?key=${apiKey}`;
+
+  // simple timeout wrapper
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), sheetFetchTimeoutMs);
+
+  try {
+    const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
+    clearTimeout(timeout);
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.warn("Google Sheets responded non-OK:", res.status, text);
+      return;
+    }
+    const data = await res.json();
+    if (!data.values || data.values.length === 0) {
+      console.warn("Google Sheets returned no values.");
+      return;
+    }
+
+    // Each row should be [metricId, value]
+    data.values.forEach(row => {
+      const id = (row[0] || "").toString().trim();
+      const value = (row[1] !== undefined) ? row[1].toString() : "";
+      if (id) updateElementsById(id, value);
+    });
+
+  } catch (err) {
+    if (err.name === "AbortError") {
+      console.error("Google Sheets fetch timed out.");
+    } else {
+      console.error("fetchSheetMetrics error:", err);
+    }
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// ---------- MAIN LOADER ----------
+async function loadAllData() {
+  // run the independent fetches in parallel but don't let one failure stop others
+  await Promise.allSettled([
+    fetchBtcPriceAndHoldings(),
+    fetchSharesJson(),
+    fetchSheetMetrics()
+  ]);
+}
+
+// ---------- INIT ON DOM READY ----------
+document.addEventListener("DOMContentLoaded", () => {
+  initThemeToggle();
+  initTabs();
+  initScreenshot();
+  // run initial load
+  loadAllData();
+
+  // optionally refresh periodically
+  // setInterval(loadAllData, 60_000); // uncomment to refresh every 60s
+});
