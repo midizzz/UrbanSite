@@ -77,13 +77,6 @@ async function loadMetrics() {
       btcDetailElement.textContent = JSON.stringify(btcData, null, 2);
     }
 
-    // BTC valuation
-    const btcValuation = btcHoldings * btcPrice;
-    const btcValuationElement = document.getElementById("btc-valuation");
-    if (btcValuationElement) {
-      btcValuationElement.textContent = `$${btcValuation.toLocaleString()}`;
-    }
-
     // Shares
     const shareRes = await fetch("shares.json");
     const shareData = await shareRes.json();
@@ -93,41 +86,37 @@ async function loadMetrics() {
       totalSharesElement.textContent = totalShares;
     }
 
-    // Share price (BTC basis)
-    const sharePrice = btcHoldings / totalShares;
-    const sharePriceElement = document.getElementById("share-price");
-    if (sharePriceElement) {
-      sharePriceElement.textContent = sharePrice.toFixed(8) + " BTC";
+// === CONFIG ===
+const apiKey = "YOUR_API_KEY_HERE";   // <-- paste your Google API key
+const sheetId = "YOUR_SHEET_ID_HERE"; // <-- paste from your sheet URL
+const range = "A2:B100"; // Adjust if you need more rows (col A = metric ID, col B = value)
+
+// === FETCH DATA FROM GOOGLE SHEETS ===
+async function loadMetrics() {
+  try {
+    const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (!data.values) {
+      console.error("No data returned from Google Sheets:", data);
+      return;
     }
 
-    const sharesValuation = sharePrice * totalShares;
-    const sharesValuationElement = document.getElementById("shares-valuation");
-    if (sharesValuationElement) {
-      sharesValuationElement.textContent = sharesValuation.toFixed(4) + " BTC";
-    }
-    const sharesDetailElement = document.getElementById("shares-detail");
-    if (sharesDetailElement) {
-      sharesDetailElement.textContent = JSON.stringify(shareData, null, 2);
-    }
+    // Each row = [id, value]
+    data.values.forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.textContent = value;
+      } else {
+        console.warn(`No element found with id="${id}" in HTML`);
+      }
+    });
 
-    // Total valuation
-    const totalValuationElement = document.getElementById("total-valuation");
-    if (totalValuationElement) {
-      totalValuationElement.textContent = (btcHoldings).toFixed(4) + " BTC";
-    }
   } catch (err) {
     console.error("Error loading metrics:", err);
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.querySelector("main.metrics")) {
-    // Load html2canvas dynamically
-    const script = document.createElement("script");
-    script.src = "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js";
-    script.onload = loadMetrics;
-    document.body.appendChild(script);
-  } else if (document.querySelector("main.home")) {
-    loadMetrics();
-  }
-});
+// Run after DOM loads
+document.addEventListener("DOMContentLoaded", loadMetrics);
