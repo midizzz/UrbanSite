@@ -4,8 +4,8 @@
 */
 
 // ---------- CONFIG ----------
-const apiKey = "AIzaSyCObyC0iqvLvY_mG_u2qoHoed9kYtiubgQ";       // <-- paste your API key
-const sheetId = "1QTwjtA4qDbF7FCPh4v0QGKmFiCT0_9brNb4LSEJbaOI";           // <-- paste your sheet ID
+const apiKey = "AIzaSyDig1pzwMpM923E4tDyKN_KMcBqfz9lfH8";       // <-- paste your API key
+const sheetId = "1xIoXT6tGCO55drQC8BCBVfd4xCiG301CtLK62y8vA58";           // <-- paste your sheet ID
 const sheetRange = "Metrics!A2:B150";           // <-- or "Sheet1!A2:B150" (include tab name)
 const sheetFetchTimeoutMs = 8000;               // timeout for sheet fetch (ms)
 
