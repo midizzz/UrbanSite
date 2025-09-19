@@ -19,14 +19,14 @@ header h1 {
   margin: 0;
   color: #4682B4;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 310;
+  font-weight: 380;
 }
 
 h1 {
   margin: 0;
   color: #4682B4;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 280;
+  font-weight: 380;
 }
 
 h2 {
@@ -41,6 +41,14 @@ h3 {
   color: #2f2e2e;
   font-family: 'Montserrat', sans-serif;
   font-weight: 250;
+}
+
+p.standout {
+  font-weight: 278;
+  font-size: 2rem; 
+  margin: 0; 
+  line-height: 1.2; 
+  padding: 0.5rem 0;"
 }
 
 nav {
@@ -100,6 +108,14 @@ main {
 }
 
 /* Tabs */
+pre {
+    font-family: inherit;
+/*    white-space-collapse: collapse;
+    text-wrap-mode: wrap; */
+    white-space: normal;
+  overflow-wrap: break-word;
+}
+
 .tabs {
   display: flex;
   gap: 0.5rem;
@@ -125,10 +141,20 @@ main {
   border: 1px solid #ddd;
   border-radius: 8px;
   background: #fafafa;
+   white-space: normal;
+  overflow-wrap: break-word;
+
 }
 
 .tab-content.active {
   display: block;
+   white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.btc-detail {
+    white-space: normal;
+  overflow-wrap: break-word;
 }
 
 /* Footer */
@@ -140,18 +166,21 @@ footer {
 
 /* Dark mode */
 body.dark.nav a.active {
-  font-weight: 540;
+  font-weight: 560;
+}  
+body.dark.nav a {
+  font-weight: 600;
 }  
 body.dark {
   background: #111;
   color: #fdfdfd;
 }
 body.dark h1{
-  font-weight: 360;
+  font-weight: 400;
 }
 body.dark h2{
   margin: 0;
-  font-weight: 360;
+  font-weight: 400;
 }
 
 body.dark h3{

@@ -104,19 +104,19 @@ async function fetchBtcPriceAndHoldings() {
         el.textContent = Number.isFinite(number) ? `$${number.toLocaleString()}` : btcPrice;
       }
     }
-
+//Proof of reserve TBC using this code
     // BTC holdings (address)
-    const addr = "bc1qpc22mhahknxt5t6samalxsf4mq5wvarar7823g"; // your address
-    const addrRes = await fetch(`${mempoolAddrPrefix}${addr}`);
-    if (!addrRes.ok) throw new Error(`Address fetch failed: ${addrRes.status}`);
-    const addrData = await addrRes.json();
+  //  const addr = "bc1qpc22mhahknxt5t6samalxsf4mq5wvarar7823g"; // your address
+  //  const addrRes = await fetch(`${mempoolAddrPrefix}${addr}`);
+  //  if (!addrRes.ok) throw new Error(`Address fetch failed: ${addrRes.status}`);
+  //  const addrData = await addrRes.json();
 
-    const funded = addrData.chain_stats?.funded_txo_sum ?? 0;
-    const spent = addrData.chain_stats?.spent_txo_sum ?? 0;
-    const sats = funded - spent;
-    const btcHoldings = sats / 1e8;
-    updateElementsById("btc-holdings", btcHoldings.toFixed(8) + " BTC");
-    updateElementsById("btc-detail", JSON.stringify(addrData, null, 2));
+  //  const funded = addrData.chain_stats?.funded_txo_sum ?? 0;
+  //  const spent = addrData.chain_stats?.spent_txo_sum ?? 0;
+  //  const sats = funded - spent;
+  //  const btcHoldings = sats / 1e8;
+  //  updateElementsById("btc-holdings", btcHoldings.toFixed(8) + " BTC");
+  //  updateElementsById("btc-detail", JSON.stringify(addrData, null, 2));
 
   } catch (err) {
     console.error("fetchBtcPriceAndHoldings error:", err);
