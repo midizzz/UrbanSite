@@ -19,21 +19,21 @@ header h1 {
   margin: 0;
   color: #4682B4;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 200;
+  font-weight: 310;
 }
 
 h1 {
   margin: 0;
   color: #4682B4;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 200;
+  font-weight: 280;
 }
 
 h2 {
   margin: 0;
   color: #093f7c;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 250;
+  font-weight: 260;
 }
 
 h3 {
@@ -55,7 +55,7 @@ nav a {
 }
 
 nav a.active {
-  font-weight: 400;
+  font-weight: 420;
   color: #093f7c;
   font-family: 'Montserrat', sans-serif;
 /*  text-decoration: underline;
@@ -139,16 +139,26 @@ footer {
 }
 
 /* Dark mode */
+body.dark.nav a.active {
+  font-weight: 540;
+}  
 body.dark {
   background: #111;
   color: #fdfdfd;
+}
+body.dark h1{
+  font-weight: 360;
+}
+body.dark h2{
+  margin: 0;
+  font-weight: 360;
 }
 
 body.dark h3{
   margin: 0;
   color: #fdfdfd;
   font-family: 'Montserrat', sans-serif;
-  font-weight: 250;
+  font-weight: 260;
 }
 
 body.dark .card {
