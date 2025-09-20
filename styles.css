@@ -165,22 +165,35 @@ footer {
 }
 
 /* Dark mode */
-body.dark.nav a.active {
-  font-weight: 560;
+body.dark nav a.active {
+  font-weight: 550 !important;
+  color: #093f7c;
+  font-family: 'Montserrat', sans-serif;
+  margin: 0 0.5rem;
+  text-decoration: none;
 }  
-body.dark.nav a {
-  font-weight: 600;
+body.dark nav a {
+  font-weight: 560;  
+  font-family: 'Montserrat', sans-serif;
+  margin: 0 0.5rem;
+  color: #2f2e2e;
+  text-decoration: none;
 }  
 body.dark {
   background: #111;
   color: #fdfdfd;
 }
+
 body.dark h1{
-  font-weight: 400;
+  font-weight: 460;
+  color: #093f7c;
+  font-family: 'Montserrat', sans-serif;
 }
 body.dark h2{
   margin: 0;
-  font-weight: 400;
+  font-weight: 460;
+  color: #093f7c;
+  font-family: 'Montserrat', sans-serif;
 }
 
 body.dark h3{

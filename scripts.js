@@ -12,7 +12,7 @@ const sheetFetchTimeoutMs = 8000;               // timeout for sheet fetch (ms)
 const mempoolPriceUrl = "https://mempool.space/api/v1/prices";
 const mempoolAddrPrefix = "https://mempool.space/api/address/";
 
-// ---------- THEME TOGGLE ----------
+// ---------- THEME TOGGLE DARK MODE----------
 function initThemeToggle() {
   const themeToggle = document.getElementById("theme-toggle");
   if (!themeToggle) return;
