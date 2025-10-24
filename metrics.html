@@ -28,6 +28,25 @@
 
   <main class="metrics">
     <h2>METRICS DASHBOARD</h2>
+  <!-- this dropdown for currency selection is currently disabled, because if you just put the html in it breaks the site
+     <
+    <div>
+<select id="currency-selector">
+  <option value="USD">USD - US Dollar</option>
+  <option value="EUR">EUR - Euro</option>
+  <option value="GBP">GBP - British Pound</option>
+  <option value="JPY">JPY - Japanese Yen</option>
+  <option value="AUD">AUD - Australian Dollar</option>
+  <option value="CAD">CAD - Canadian Dollar</option>
+  <option value="NZD">NZD - New Zealand Dollar</option>
+  <option value="CHF">CHF - Swiss Franc</option>
+  <option value="CNY">CNY - Chinese Yuan</option>
+  <option value="INR">INR - Indian Rupee</option>
+  <option value="SGD">SGD - Singapore Dollar</option>
+</select>
+    </div>
+-->
+
     <br>
     <section class="cards">
       <div class="card">
@@ -46,7 +65,6 @@
         <h3>UE RETURN ON BITCOIN (BSE2025)</h3>
         <p id="ue-all-time-return-bitcoin">—</p>
       </div>
-
       <div class="card">
         <h3>SHARE PRICE</h3>
         <p id="share-price">—</p>
@@ -63,7 +81,6 @@
         <h3>OUTSTANDING MARKET CAP</h3>
         <p id="outstanding-marketcap">—</p>
       </div>
-
       <div class="card">
         <h3>BTC HOLDINGS</h3>
         <p id="btc-holdings">—</p>
@@ -80,13 +97,20 @@
         <h3>NAV (NET ASSET VALUE)</h3>
         <p id="nav">—</p>
       </div>
-
+      <div class="card">
+        <h3>ENTERPRISE VALUE</h3>
+        <p id="enterprise-value">—</p>
+      </div>
       <div class="card">
         <h3>MNAV</h3>
         <p id="m-nav">—</p>
       </div>
-
-         <div class="card">
+        <div class="card">
+        <h3>EXCLUDED SHARES</h3>
+        <p id="excluded-shares">—</p>
+      </div>
+        </div>
+        <div class="card">
         <h3>SHARES ISSUED</h3>
         <p id="shares-issued">—</p>
       </div>
@@ -94,22 +118,18 @@
         <h3>BTC PER SHARE (BPS)</h3>
         <p id="btc-pershare">—</p>
       </div>
-            
-      <div class="card">
-        <h3>▵BPS</h3>
-        <p id="btc-pershare">—</p>
+        <div class="card">
+        <h3>▵BPS (BSE2025)</h3>
+        <p id="change-in-bps">—</p>
       </div>
       <div class="card">
         <h3>ANNUAL ▵BPS</h3>
         <p id="annual-change-in-bps">—</p>
       </div>
-
-
         <div class="card">
         <h3>BTC VALUE PER SHARE (SPOT)</h3>
         <p id="btc-value-pershare">—</p>
       </div>
-
         <div class="card">
         <h3>DEBT</h3>
         <p id="debt">—</p>
@@ -137,6 +157,7 @@
       <button class="tab-btn" data-tab="shares-tab">SHARES DETAIL</button>
       <button class="tab-btn" data-tab="cash-tab">CASH DETAIL</button>
       <button class="tab-btn" data-tab="debt-tab">DEBT DETAIL</button>
+      <button class="tab-btn" data-tab="legal-tab">LEGAL DETAIL</button>
       <button class="tab-btn" id="screenshot-btn">SCREENSHOT 📸</button>
     </div>
 
@@ -153,6 +174,16 @@
      <section id="cash-tab" class="tab-content">
       <h3>CASH DETAIL</h3>
       <pre id="cash-detail">—</pre>
+    </section>
+
+     <section id="debt-tab" class="tab-content">
+        <h3>DEBT DETAIL</h3>
+        <pre id="debt-detail">—</pre>
+    </section>
+    
+      <section id="legal-tab" class="tab-content">
+      <h3>LEGAL DETAIL</h3>
+      <pre id="legal-detail">—</pre>
     </section>
 
    

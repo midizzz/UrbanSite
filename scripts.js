@@ -124,20 +124,20 @@ async function fetchBtcPriceAndHoldings() {
 }
 
 // ---------- FETCH SHARES JSON ----------
-async function fetchSharesJson() {
+async function fetchDataJson() {
   try {
-    const res = await fetch("Data.json", { cache: "no-store" });
+    const res = await fetch("data.json", { cache: "no-store" });
     if (!res.ok) {
-      console.warn("Data.json not found or returned non-OK status:", res.status);
+      console.warn("data.json not found or returned non-OK status:", res.status);
       return;
     }
     const data = await res.json();
-    const totalShares = data?.totalShares ?? data?.total_shares ?? null;
-    if (totalShares != null) updateElementsById("total-shares", totalShares);
+    const totalData = data?.totalData ?? data?.total_Data ?? null;
+    if (totalData != null) updateElementsById("total-data", totalData);
     // you can update more share related fields here if Data.json contains them
     updateElementsById("shares-detail", JSON.stringify(data, null, 2));
   } catch (err) {
-    console.error("fetchSharesJson error:", err);
+    console.error("fetchDataJson error:", err);
   }
 }
 
@@ -191,7 +191,7 @@ async function loadAllData() {
   // run the independent fetches in parallel but don't let one failure stop others
   await Promise.allSettled([
     fetchBtcPriceAndHoldings(),
-    fetchSharesJson(),
+    fetchDataJson(),
     fetchSheetMetrics()
   ]);
 }
