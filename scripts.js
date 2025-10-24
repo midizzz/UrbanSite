@@ -126,15 +126,15 @@ async function fetchBtcPriceAndHoldings() {
 // ---------- FETCH SHARES JSON ----------
 async function fetchSharesJson() {
   try {
-    const res = await fetch("shares.json", { cache: "no-store" });
+    const res = await fetch("Data.json", { cache: "no-store" });
     if (!res.ok) {
-      console.warn("shares.json not found or returned non-OK status:", res.status);
+      console.warn("Data.json not found or returned non-OK status:", res.status);
       return;
     }
     const data = await res.json();
     const totalShares = data?.totalShares ?? data?.total_shares ?? null;
     if (totalShares != null) updateElementsById("total-shares", totalShares);
-    // you can update more share related fields here if shares.json contains them
+    // you can update more share related fields here if Data.json contains them
     updateElementsById("shares-detail", JSON.stringify(data, null, 2));
   } catch (err) {
     console.error("fetchSharesJson error:", err);

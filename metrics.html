@@ -19,6 +19,7 @@
     <h1></h1>
     <nav>
       <a href="index.html">HOME</a>
+      <a href="about.html">ABOUT</a>
       <a href="metrics.html" class="active">METRICS</a>
     </nav>
     <button id="theme-toggle">🌙</button>
@@ -27,6 +28,7 @@
 
   <main class="metrics">
     <h2>METRICS DASHBOARD</h2>
+    <br>
     <section class="cards">
       <div class="card">
         <h3>BITCOIN PRICE</h3>
@@ -71,7 +73,7 @@
         <p id="btc-value">—</p>
       </div>
       <div class="card">
-        <h3>NON BTC VALUE</h3>
+        <h3>NON BTC ENTERPRISE VALUE</h3>
         <p id="non-btc-value">—</p>
       </div>
       <div class="card">
@@ -80,17 +82,29 @@
       </div>
 
       <div class="card">
-        <h3>ANNUAL MNAV</h3>
+        <h3>MNAV</h3>
         <p id="m-nav">—</p>
       </div>
+
          <div class="card">
-        <h3>OUTSTANDING SHARES</h3>
-        <p id="total-shares">—</p>
+        <h3>SHARES ISSUED</h3>
+        <p id="shares-issued">—</p>
       </div>
       <div class="card">
-        <h3>BTC PER SHARE</h3>
+        <h3>BTC PER SHARE (BPS)</h3>
         <p id="btc-pershare">—</p>
       </div>
+            
+      <div class="card">
+        <h3>▵BPS</h3>
+        <p id="btc-pershare">—</p>
+      </div>
+      <div class="card">
+        <h3>ANNUAL ▵BPS</h3>
+        <p id="annual-change-in-bps">—</p>
+      </div>
+
+
         <div class="card">
         <h3>BTC VALUE PER SHARE (SPOT)</h3>
         <p id="btc-value-pershare">—</p>
@@ -119,10 +133,11 @@
     </section>
 
     <div class="tabs">
-      <button class="tab-btn active" data-tab="btc-tab">BTC Detail</button>
-      <button class="tab-btn" data-tab="shares-tab">Shares Detail</button>
-      <button class="tab-btn" data-tab="cash-tab">Cash Detail</button>
-<button class="tab-btn" id="screenshot-btn">📸 Save Screenshot</button>
+      <button class="tab-btn active" data-tab="btc-tab">BTC DETAIL</button>
+      <button class="tab-btn" data-tab="shares-tab">SHARES DETAIL</button>
+      <button class="tab-btn" data-tab="cash-tab">CASH DETAIL</button>
+      <button class="tab-btn" data-tab="debt-tab">DEBT DETAIL</button>
+      <button class="tab-btn" id="screenshot-btn">SCREENSHOT 📸</button>
     </div>
 
     <section id="btc-tab" class="tab-content active">
