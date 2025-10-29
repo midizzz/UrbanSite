@@ -123,7 +123,7 @@ async function fetchBtcPriceAndHoldings() {
   }
 }
 
-// ---------- FETCH SHARES JSON ----------
+// ---------- FETCH DATA JSON (was shares.json I think it is not working, oct 2025 all info is coming from sheets API but this should cache the data to reduce API calls) ----------
 async function fetchDataJson() {
   try {
     const res = await fetch("data.json", { cache: "no-store" });
@@ -134,8 +134,8 @@ async function fetchDataJson() {
     const data = await res.json();
     const totalData = data?.totalData ?? data?.total_Data ?? null;
     if (totalData != null) updateElementsById("total-data", totalData);
-    // you can update more share related fields here if Data.json contains them
-    updateElementsById("shares-detail", JSON.stringify(data, null, 2));
+    // you can update more metrics data related fields here if Data.json contains them
+    updateElementsById("share-price", JSON.stringify(data, null, 2));
   } catch (err) {
     console.error("fetchDataJson error:", err);
   }
