@@ -28,6 +28,8 @@
 
   <main class="metrics">
     <h2>METRICS DASHBOARD</h2>
+<p>All prices are estimates in USD</p>
+
   <!-- this dropdown for currency selection is currently disabled, because if you just put the html in it breaks the site
      <
     <div>
@@ -47,6 +49,7 @@
     </div>
 -->
     <!--New button from grok-->
+    <!--
 <p align="right">
   <label for="currencySelect">Currency:</label>
   <select id="currencySelect">
@@ -73,104 +76,117 @@
     <option value="DKK">DKK — Danish Krone</option>
   </select>
 </p>
-
+-->
  <!--Start of the cards section-->
     <br>
     <section class="cards">
-      <div class="card">
+      <div class="card" title="Current market price of Bitcoin from API">
         <h3>BITCOIN PRICE</h3>
         <p id="bitcoin-price">—</p>
       </div>
-        <div class="card">
+        <div class="card" title="Return of Bitcoin since Urban Environmental Ltd adopted the Bitcoin Standard Era in September 2025">
         <h3>BITCOIN RETURN (BSE2025)</h3>
         <p id="btc-all-time-return">—</p>
       </div>
-       <div class="card">
+       <div class="card" title="Total return of Urban Environmental Ltd Share Price since share price quoted at $1NZD ($0.60USD) Bitcoin Standard Era in September 2025">
         <h3>UE ALL TIME RETURN</h3>
         <p id="ue-all-time-return">—</p>
       </div>
-        <div class="card">
+        <div class="card" title="Total return of Urban Environmental Ltd Share Price measured in bitcoin since share price quoted at $1NZD ($0.60USD) Bitcoin Standard Era in September 2025">
         <h3>UE RETURN ON BITCOIN (BSE2025)</h3>
         <p id="ue-all-time-return-bitcoin">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Current quoted share purchase price of shares at Urban Environmental Ltd">
         <h3>SHARE PRICE</h3>
         <p id="share-price">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Average annualised return since Urban Environmental Ltd adopted the Bitcoin Standard Era in September 2025">
         <h3>AVERAGE ANNUAL RETURN</h3>
         <p id="ave-return">—</p>
       </div>
-      <div class="card">
-        <h3>1Y RETURN</h3>
+      <!--
+      <div class="card" title="Annual return on share price for last financial year reported">
+        <h3>1Y RETURN (LFY)</h3>
         <p id="1y-return">—</p>
       </div>
-      <div class="card">
+    -->
+      <div class="card" title="Total market capitalisation calculated using the current Share Price and Shares issued">
         <h3>OUTSTANDING MARKET CAP</h3>
         <p id="outstanding-marketcap">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Total Bitcoin held in public wallets (real-time number)">
         <h3>BTC HOLDINGS</h3>
         <p id="btc-holdings">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Total value of Bitcoin Holdings at the current market Bitcoin Price">
         <h3>BTC HOLDINGS VALUE</h3>
         <p id="btc-value">—</p>
       </div>
-      <div class="card">
-        <h3>NON BTC ENTERPRISE VALUE</h3>
+      <div class="card" title="Total value of company non-bitcoin assets, debt, cash and equity at the last reporting date">
+        <h3>NON BTC VALUE</h3>
         <p id="non-btc-value">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Net asset value calculated including bitcoin at the current price and Non-BTC Value, less debt at the last reporting date">
         <h3>NAV (NET ASSET VALUE)</h3>
         <p id="nav">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Total enterprise value calculated including Non-BTC Value, debt and equity at the last reporting date with cash deducted and bitcoin valued at the current Bitcoin Price">
         <h3>ENTERPRISE VALUE</h3>
         <p id="enterprise-value">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Modified net asset value. This statistic shows the ratio of Enterprise Value to BTC Holdings Value">
         <h3>MNAV</h3>
         <p id="m-nav">—</p>
       </div>
-        <div class="card">
-        <h3>EXCLUDED SHARES</h3>
-        <p id="excluded-shares">—</p>
+      <!--
+        <div class="card" title="Total Shares including all categories">
+        <h3>TOTAL SHARES</h3>
+        <p id="total-shares">—</p>
       </div>
+    -->
         </div>
-        <div class="card">
+        <div class="card" title="Total shares Issued by Urban Environmental Ltd to be used in Bitcoin Per Share calculation">
         <h3>SHARES ISSUED</h3>
         <p id="shares-issued">—</p>
       </div>
-      <div class="card">
-        <h3>BTC PER SHARE (BPS)</h3>
-        <p id="btc-pershare">—</p>
+              <div class="card" title="Shares that are excluded from the Bitcoin Per Share calculation">
+        <h3>EXCLUDED SHARES</h3>
+        <p id="excluded-shares">—</p>
       </div>
-        <div class="card">
+      <div class="card" title="Bitcoin Per Share is calculated as Shares Issued minus Excluded Shares">
+        <h3>BTC PER SHARE (BPS)</h3>
+        <p id="btc-pershare" >—</p>
+      </div>
+        <div class="card" title="Change in Bitcoin per share since Urban Environmental entered the bitcoin standard era">
         <h3>▵BPS (BSE2025)</h3>
         <p id="change-in-bps">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Change in Bitcoin Per Share calculated as the average per reported year since the company entered the Bitcoin Standard Era">
         <h3>ANNUAL ▵BPS</h3>
         <p id="annual-change-in-bps">—</p>
       </div>
-        <div class="card">
+        <div class="card" title="Current dallar value of Bitcoin per share at the spot Bitcoin market price">
         <h3>BTC VALUE PER SHARE (SPOT)</h3>
         <p id="btc-value-pershare">—</p>
+              </div>
+        <div class="card" title="Estimate of total cash in the company accounts at the last assessment rounded to nearest significant figure">
+        <h3>CASH</h3>
+        <p id="cash">—</p>
       </div>
-        <div class="card">
+      </div>
+        <div class="card" title="Total debt owed by the company at the last reporting date">
         <h3>DEBT</h3>
         <p id="debt">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Ratio of total debt to Net Asset Value">
         <h3>DEBT/NAV</h3>
         <p id="debt-nav">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="Projected price for the company shares based on Bitcoin Per Share and the share price of our leading competitor Strategy (formerly Micro Strategy) as calculated on the 1st of September 2025">
         <h3>MSTR COMP. SHARE PRICE (CALC.1/9/2025)</h3>
         <p id="mstrcomp-share-price">—</p>
       </div>
-      <div class="card">
+      <div class="card" title="The relative discount of the current Share Price of the company compared to the projected price of our leading competitor Strategy (formerly Micro Strategy) as calculated on the 1st of September 2025">
         <h3>UE COMP. SHARE PRICE DISCOUNT (CALC.1/9/2025)</h3>
         <p id="mstr-discount-fixed">—</p>
       </div>
