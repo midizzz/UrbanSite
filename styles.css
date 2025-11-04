@@ -52,7 +52,8 @@ p.standout {
 }
 
 nav {
-  align-items: center;
+  margin-left: 60px;
+  margin-top: -3px;
 }
 
 nav a {
@@ -66,9 +67,7 @@ nav a.active {
   font-weight: 420;
   color: #093f7c;
   font-family: 'Montserrat', sans-serif;
-/*  text-decoration: underline;
-  color: #4682B4
-*/
+/*  text-decoration: underline; */
 }
 
 a {
@@ -117,16 +116,18 @@ main {
 /* Tabs */
 pre {
     font-family: inherit;
-/*    white-space-collapse: collapse;
-    text-wrap-mode: wrap; */
+    white-space-collapse: collapse;
+    text-wrap-mode: wrap;
     white-space: normal;
   overflow-wrap: break-word;
 }
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 1rem;
+  margin-right: 1rem;
 }
 
 .tab-btn {
@@ -229,3 +230,4 @@ body.dark .tab-content {
   border: 1px solid #222;
   background: #222;
 }
+
