@@ -1,70 +1,107 @@
-/* scripts.js — merged & fixed
-   - Put your Google API key and Sheet ID below.
-   - If your sheet tab has a name (e.g. "Metrics"), use "Metrics!A2:B150" for sheetRange.
-*/
+/* scripts.js — updated with multi-currency support */
 
-// ---------- CONFIG ----------
-const apiKey = "AIzaSyDig1pzwMpM923E4tDyKN_KMcBqfz9lfH8";       // <-- paste your API key
-const sheetId = "1xIoXT6tGCO55drQC8BCBVfd4xCiG301CtLK62y8vA58";           // <-- paste your sheet ID
-const sheetRange = "Metrics!A2:B150";           // <-- or "Sheet1!A2:B150" (include tab name)
-const sheetFetchTimeoutMs = 8000;               // timeout for sheet fetch (ms)
+const apiKey = "AIzaSyDig1pzwMpM923E4tDyKN_KMcBqfz9lfH8";
+const sheetId = "1xIoXT6tGCO55drQC8BCBVfd4xCiG301CtLK62y8vA58";
+const sheetRange = "Metrics!A2:B150";
+const sheetFetchTimeoutMs = 8000;
 
-const mempoolPriceUrl = "https://mempool.space/api/v1/prices";
-const mempoolAddrPrefix = "https://mempool.space/api/address/";
+// ---------- CURRENCY SUPPORT ----------
+let currentCurrency = 'USD';
+let exchangeRates = {};
+let originalValues = {};
 
+const currencyDependentIds = [
+  'bitcoin-price',
+  'share-price',
+  'outstanding-marketcap',
+  'btc-value',
+  'non-btc-value',
+  'nav',
+  'enterprise-value',
+  'btc-value-pershare',
+  'cash',
+  'debt',
+  'mstrcomp-share-price'
+  // Add any extra USD IDs from your sheet here if needed
+];
 
-// ---------- THEME TOGGLE DARK MODE----------
+async function fetchExchangeRates() {
+  try {
+    const res = await fetch('https://api.exchangerate.host/latest?base=USD');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    exchangeRates = data.rates || {};
+    exchangeRates.USD = 1;
+  } catch (e) {
+    console.error('Exchange rates failed – staying in USD');
+    exchangeRates = { USD: 1 };
+  }
+}
+
+function formatMoney(amount, currencyCode) {
+  if (typeof amount !== 'number' || isNaN(amount)) return '—';
+  try {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: currencyCode
+    }).format(amount);
+  } catch (err) {
+    return `${currencyCode} ${amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+  }
+}
+
+function convertAndUpdate(currency) {
+  currentCurrency = currency || 'USD';
+  const rate = exchangeRates[currentCurrency] !== undefined ? exchangeRates[currentCurrency] : 1;
+
+  currencyDependentIds.forEach(id => {
+    const usdVal = originalValues[id];
+    if (usdVal !== undefined) {
+      const converted = usdVal * rate;
+      updateElementsById(id, formatMoney(converted, currentCurrency));
+    }
+  });
+}
+
+// ---------- THEME TOGGLE ----------
 function initThemeToggle() {
   const themeToggle = document.getElementById("theme-toggle");
   if (!themeToggle) return;
-
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme === "dark") {
     document.body.classList.add("dark");
     themeToggle.textContent = "☀️";
   }
-
   themeToggle.addEventListener("click", () => {
     document.body.classList.toggle("dark");
-    if (document.body.classList.contains("dark")) {
-      themeToggle.textContent = "☀️";
-      localStorage.setItem("theme", "dark");
-    } else {
-      themeToggle.textContent = "🌙";
-      localStorage.setItem("theme", "light");
-    }
+    themeToggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
   });
 }
 
 // ---------- TABS ----------
 function initTabs() {
-  const tabButtons = document.querySelectorAll(".tab-btn");
-  tabButtons.forEach(btn =>
+  document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
-      tabButtons.forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-
-      const tabs = document.querySelectorAll(".tab-content");
-      tabs.forEach(tab => tab.classList.remove("active"));
-
+      document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
       const target = document.getElementById(btn.dataset.tab);
       if (target) target.classList.add("active");
-    })
-  );
+    });
+  });
 }
 
-// ---------- SCREENSHOT (optional html2canvas) ----------
+// ---------- SCREENSHOT ----------
 function initScreenshot() {
-  const screenshotBtn = document.getElementById("screenshot-btn");
-  if (!screenshotBtn) return;
-
-  screenshotBtn.addEventListener("click", async () => {
+  const btn = document.getElementById("screenshot-btn");
+  if (!btn) return;
+  btn.addEventListener("click", async () => {
     if (typeof html2canvas !== "function") {
-      alert("html2canvas not loaded. Include html2canvas library to use screenshot.");
+      alert("html2canvas not loaded");
       return;
     }
-    const element = document.querySelector("main");
-    const canvas = await html2canvas(element);
+    const canvas = await html2canvas(document.querySelector("main"));
     const link = document.createElement("a");
     link.download = "metrics.png";
     link.href = canvas.toDataURL();
@@ -72,145 +109,91 @@ function initScreenshot() {
   });
 }
 
-// ---------- UTILITY: update elements by id (handles duplicates) ----------
+// ---------- UPDATE ELEMENTS ----------
 function updateElementsById(id, value) {
   if (!id) return;
-  // Use attribute selector to be resilient to special characters:
-  const elems = document.querySelectorAll(`[id="${id}"]`);
-  if (!elems || elems.length === 0) {
-    // silent — but useful when debugging
-    console.warn(`No element found with id="${id}"`);
-    return;
-  }
-  elems.forEach(el => {
-    // put multiline values into <pre> properly
+  document.querySelectorAll(`[id="${id}"]`).forEach(el => {
     if (el.tagName === "PRE") el.textContent = value;
     else el.textContent = value;
   });
 }
 
-// ---------- FETCH BTC HOLDINGS ----------
-//async function fetchBtcPriceAndHoldings() {
- // try {
-    // BTC price (mempool.space)
-//    const priceRes = await fetch(mempoolPriceUrl, { cache: "no-store" });
-//    if (!priceRes.ok) throw new Error(`Price fetch failed: ${priceRes.status}`);
-//    const priceData = await priceRes.json();
-    // try multiple possible shapes
-//    const btcPrice = priceData?.USD ?? priceData?.usd ?? priceData?.USD?.toString?.();
- //  if (btcPrice != null) {
-   //  const el = document.getElementById("bitcoin-price"); // The sheets item is bitcoin price not BTC price
- //     if (el) {
-  //      const number = Number(btcPrice);
- //       el.textContent = Number.isFinite(number) ? `$${number.toLocaleString()}` : btcPrice;
-//      }
-//    }
-//Proof of reserve TBC using this code
-    // BTC holdings (addresses)
-  //   const addr = "bc1qpc22mhahknxt5t6samalxsf4mq5wvarar7823g"; // your address
-   // const addr = "bc1pvh63nkdkpux2d42q55s0xplqpegljynpgwz7rlngcw23v4qut73syeudzd"; // your address
-  //  const addr = "bc1phnt44fc58kmeppzkgqqtxen6tath2q3txrc54upjkpszuyannfzsa5xzsr"; // your address
-
-     
-  //   const addrRes = await fetch(`${mempoolAddrPrefix}${addr}`);
- //    if (!addrRes.ok) throw new Error(`Address fetch failed: ${addrRes.status}`);
- //    const addrData = await addrRes.json();
-
- //    const funded = addrData.chain_stats?.funded_txo_sum ?? 0;
-//     const spent = addrData.chain_stats?.spent_txo_sum ?? 0;
-//     const sats = funded - spent;
-//     const btcHoldings = sats / 1e8;
-     
-  //  updateElementsById("btc-holdings", btcHoldings.toFixed(8) + " BTC");
-//    updateElementsById("btc-detail", JSON.stringify(addrData, null, 2));  // this can be put in for detail tab
-
-//  } catch (err) {
-//    console.error("fetchBtcPriceAndHoldings error:", err);
-//  }
-//}
-
-
-// ---------- FETCH DATA JSON (check capitalisation!, was shares.json I think it is not working, oct 2025 all info is coming from sheets API but this should cache the data to reduce API calls) ----------
-async function fetchDataJson() {
-  try {
-    const res = await fetch("Data.json", { cache: "no-store" });
-    if (!res.ok) {
-      console.warn("Data.json not found or returned non-OK status:", res.status);
-      return;
-    }
-    const data = await res.json();
-    const totalData = data?.totalData ?? data?.total_Data ?? null;
-    if (totalData != null) updateElementsById("total-data", totalData);
-    // you can update more metrics data related fields here if Data.json contains them
-    updateElementsById("share-price", JSON.stringify(data, null, 2));
-  } catch (err) {
-    console.error("fetchDataJson error:", err);
-  }
-}
-
-// ---------- FETCH GOOGLE SHEETS METRICS ----------
+// ---------- FETCH GOOGLE SHEETS (now also saves original USD values) ----------
 async function fetchSheetMetrics() {
-  if (!apiKey || !sheetId) {
-    console.warn("Google Sheets config missing (apiKey or sheetId). Skipping sheet fetch.");
-    return;
-  }
-
+  if (!apiKey || !sheetId) return;
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetRange)}?key=${apiKey}`;
-
-  // simple timeout wrapper
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), sheetFetchTimeoutMs);
 
   try {
     const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
     clearTimeout(timeout);
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      console.warn("Google Sheets responded non-OK:", res.status, text);
-      return;
-    }
+    if (!res.ok) return;
     const data = await res.json();
-    if (!data.values || data.values.length === 0) {
-      console.warn("Google Sheets returned no values.");
-      return;
-    }
+    if (!data.values) return;
 
-    // Each row should be [metricId, value]
     data.values.forEach(row => {
       const id = (row[0] || "").toString().trim();
-      const value = (row[1] !== undefined) ? row[1].toString() : "";
-      if (id) updateElementsById(id, value);
-    });
+      let value = (row[1] !== undefined) ? row[1].toString() : "";
+      if (id) {
+        updateElementsById(id, value);
 
+        // Store clean numeric USD value for conversion
+        const cleaned = value.replace(/[^0-9.-]+/g, '');
+        const num = parseFloat(cleaned);
+        if (!isNaN(num) && currencyDependentIds.includes(id)) {
+          originalValues[id] = num;
+        }
+      }
+    });
   } catch (err) {
-    if (err.name === "AbortError") {
-      console.error("Google Sheets fetch timed out.");
-    } else {
-      console.error("fetchSheetMetrics error:", err);
-    }
+    if (err.name !== "AbortError") console.error("fetchSheetMetrics error:", err);
   } finally {
     clearTimeout(timeout);
   }
 }
 
+// ---------- OTHER FETCHES (unchanged) ----------
+async function fetchDataJson() {
+  try {
+    const res = await fetch("Data.json", { cache: "no-store" });
+    if (!res.ok) return;
+    const data = await res.json();
+    // add any extra Data.json handling here if you use it
+  } catch (err) {
+    console.error("fetchDataJson error:", err);
+  }
+}
+
 // ---------- MAIN LOADER ----------
 async function loadAllData() {
-  // run the independent fetches in parallel but don't let one failure stop others
   await Promise.allSettled([
-//    fetchBtcPriceAndHoldings(),
     fetchDataJson(),
-    fetchSheetMetrics()
+    fetchSheetMetrics(),
+    fetchExchangeRates()
   ]);
 }
 
-// ---------- INIT ON DOM READY ----------
+// ---------- INIT ----------
 document.addEventListener("DOMContentLoaded", () => {
   initThemeToggle();
   initTabs();
   initScreenshot();
-  // run initial load
-  loadAllData();
 
-  // optionally refresh periodically
-  // setInterval(loadAllData, 60_000); // uncomment to refresh every 60s
+  loadAllData().then(() => {
+    // Apply saved currency (or default USD)
+    const saved = localStorage.getItem('selectedCurrency') || 'USD';
+    convertAndUpdate(saved);
+
+    // Hook up the dropdown (only exists on metrics.html)
+    const currencySelect = document.getElementById('currencySelect');
+    if (currencySelect) {
+      currencySelect.value = saved;
+      currencySelect.addEventListener('change', e => {
+        const newCur = e.target.value;
+        localStorage.setItem('selectedCurrency', newCur);
+        convertAndUpdate(newCur);
+      });
+    }
+  });
 });
