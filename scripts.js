@@ -89,22 +89,22 @@ function updateElementsById(id, value) {
   });
 }
 
-// ---------- FETCH BTC PRICE + HOLDINGS ----------
-async function fetchBtcPriceAndHoldings() {
-  try {
+// ---------- FETCH BTC HOLDINGS ----------
+//async function fetchBtcPriceAndHoldings() {
+ // try {
     // BTC price (mempool.space)
-    const priceRes = await fetch(mempoolPriceUrl, { cache: "no-store" });
-    if (!priceRes.ok) throw new Error(`Price fetch failed: ${priceRes.status}`);
-    const priceData = await priceRes.json();
+//    const priceRes = await fetch(mempoolPriceUrl, { cache: "no-store" });
+//    if (!priceRes.ok) throw new Error(`Price fetch failed: ${priceRes.status}`);
+//    const priceData = await priceRes.json();
     // try multiple possible shapes
-    const btcPrice = priceData?.USD ?? priceData?.usd ?? priceData?.USD?.toString?.();
-    if (btcPrice != null) {
-      const el = document.getElementById("bitcoin-price");
-      if (el) {
-        const number = Number(btcPrice);
-        el.textContent = Number.isFinite(number) ? `$${number.toLocaleString()}` : btcPrice;
-      }
-    }
+//    const btcPrice = priceData?.USD ?? priceData?.usd ?? priceData?.USD?.toString?.();
+ //  if (btcPrice != null) {
+   //  const el = document.getElementById("bitcoin-price"); // The sheets item is bitcoin price not BTC price
+ //     if (el) {
+  //      const number = Number(btcPrice);
+ //       el.textContent = Number.isFinite(number) ? `$${number.toLocaleString()}` : btcPrice;
+//      }
+//    }
 //Proof of reserve TBC using this code
     // BTC holdings (addresses)
   //   const addr = "bc1qpc22mhahknxt5t6samalxsf4mq5wvarar7823g"; // your address
@@ -122,19 +122,20 @@ async function fetchBtcPriceAndHoldings() {
 //     const btcHoldings = sats / 1e8;
      
   //  updateElementsById("btc-holdings", btcHoldings.toFixed(8) + " BTC");
-    updateElementsById("btc-detail", JSON.stringify(addrData, null, 2));
+//    updateElementsById("btc-detail", JSON.stringify(addrData, null, 2));  // this can be put in for detail tab
 
-  } catch (err) {
-    console.error("fetchBtcPriceAndHoldings error:", err);
-  }
-}
+//  } catch (err) {
+//    console.error("fetchBtcPriceAndHoldings error:", err);
+//  }
+//}
+
 
 // ---------- FETCH DATA JSON (check capitalisation!, was shares.json I think it is not working, oct 2025 all info is coming from sheets API but this should cache the data to reduce API calls) ----------
 async function fetchDataJson() {
   try {
-    const res = await fetch("data.json", { cache: "no-store" });
+    const res = await fetch("Data.json", { cache: "no-store" });
     if (!res.ok) {
-      console.warn("data.json not found or returned non-OK status:", res.status);
+      console.warn("Data.json not found or returned non-OK status:", res.status);
       return;
     }
     const data = await res.json();
@@ -196,7 +197,7 @@ async function fetchSheetMetrics() {
 async function loadAllData() {
   // run the independent fetches in parallel but don't let one failure stop others
   await Promise.allSettled([
-    fetchBtcPriceAndHoldings(),
+//    fetchBtcPriceAndHoldings(),
     fetchDataJson(),
     fetchSheetMetrics()
   ]);
