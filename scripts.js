@@ -1,13 +1,23 @@
-/* scripts.js — updated with multi-currency support */
+/* scripts.js — Urban Environmental Ltd website
+   Full version with multi-currency support, Google Sheets, theme toggle, tabs, etc.
+   Order: constants → currency helpers → utility functions → init functions → data loaders → DOMContentLoaded
+*/
+
+// ────────────────────────────────────────────────
+//  CONFIG & CONSTANTS
+// ────────────────────────────────────────────────
 
 const apiKey = "AIzaSyDig1pzwMpM923E4tDyKN_KMcBqfz9lfH8";
 const sheetId = "1xIoXT6tGCO55drQC8BCBVfd4xCiG301CtLK62y8vA58";
 const sheetRange = "Metrics!A2:B150";
 const sheetFetchTimeoutMs = 8000;
 
-// ---------- CURRENCY SUPPORT ----------
+// ────────────────────────────────────────────────
+//  CURRENCY SUPPORT
+// ────────────────────────────────────────────────
+
 let currentCurrency = 'USD';
-let exchangeRates = {};
+let exchangeRates = { USD: 1 };
 let originalValues = {};
 
 const currencyDependentIds = [
@@ -15,76 +25,240 @@ const currencyDependentIds = [
   'share-price',
   'outstanding-marketcap',
   'btc-value',
-  'non-btc-value',
-  'nav',
+  'non-btc-value',  
+  'nav', 
   'enterprise-value',
   'btc-value-pershare',
   'cash',
   'debt',
-  'mstrcomp-share-price'
-  // Add any extra USD IDs from your sheet here if needed
+  'mstrcomp-share-price',
+  // Add any other IDs that display dollar amounts here
 ];
+
+// ────────────────────────────────────────────────
+//  AUTO-DETECT PREFERRED CURRENCY FROM TIMEZONE
+// ────────────────────────────────────────────────
+
+function detectLikelyCurrency() {
+  // Default fallback
+  let currency = 'USD';
+
+  if (typeof Intl !== 'undefined' && Intl.DateTimeFormat) {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      console.log("Detected timezone:", tz);
+
+      // Very common mappings (expand as needed)
+      const tzToCurrency = {
+        'Europe/London': 'GBP',
+        'Europe/Paris': 'EUR',
+        'Europe/Berlin': 'EUR',
+        'Europe/Rome': 'EUR',
+        'Asia/Tokyo': 'JPY',
+        'Asia/Shanghai': 'CNY',
+        'Asia/Hong_Kong': 'HKD',
+        'Australia/Sydney': 'AUD',
+        'Australia/Melbourne': 'AUD',
+        'Pacific/Auckland': 'NZD',
+        'America/New_York': 'USD',
+        'America/Los_Angeles': 'USD',
+        'America/Toronto': 'CAD',
+        'Europe/Zurich': 'CHF',
+        'Asia/Singapore': 'SGD',
+        'Asia/Seoul': 'KRW',
+        'Europe/Stockholm': 'SEK',
+        'Europe/Oslo': 'NOK',
+        'Asia/Jakarta': 'IDR', // example – add more if relevant
+      };
+
+      if (tzToCurrency[tz]) {
+        currency = tzToCurrency[tz];
+      } else if (tz.startsWith('Europe/')) {
+        currency = 'EUR'; // most of Western/Central Europe
+      } else if (tz.startsWith('America/')) {
+        currency = 'USD'; // most common in Americas
+      }
+    } catch (e) {
+      console.warn("Timezone detection failed", e);
+    }
+  }
+
+  // Optional fallback: browser language
+  if (currency === 'USD' && navigator.language) {
+    const lang = navigator.language.toUpperCase();
+    if (lang.includes('EN-AU') || lang.includes('EN-NZ')) currency = 'AUD'; // rough
+    if (lang.includes('FR')) currency = 'EUR';
+    if (lang.includes('DE')) currency = 'EUR';
+    if (lang.includes('JA')) currency = 'JPY';
+  }
+
+  console.log("Auto-detected preferred currency:", currency);
+  return currency;
+}
+
+
 
 async function fetchExchangeRates() {
   try {
-    const res = await fetch('https://api.exchangerate.host/latest?base=USD');
-    if (!res.ok) throw new Error();
+    console.log("Fetching exchange rates...");
+    const res = await fetch('https://open.er-api.com/v6/latest/USD');
+    if (!res.ok) throw new Error('Rates fetch failed');
     const data = await res.json();
-    exchangeRates = data.rates || {};
-    exchangeRates.USD = 1;
-  } catch (e) {
-    console.error('Exchange rates failed – staying in USD');
-    exchangeRates = { USD: 1 };
-  }
-}
-
-function formatMoney(amount, currencyCode) {
-  if (typeof amount !== 'number' || isNaN(amount)) return '—';
-  try {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currencyCode
-    }).format(amount);
+    if (data.result === 'success' && data.rates) {
+      exchangeRates = { USD: 1, ...data.rates };
+      console.log(`Loaded ${Object.keys(exchangeRates).length} currencies`);
+    }
   } catch (err) {
-    return `${currencyCode} ${amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+    console.warn("Exchange rates failed → staying in USD only", err);
   }
 }
 
-function convertAndUpdate(currency) {
-  currentCurrency = currency || 'USD';
-  const rate = exchangeRates[currentCurrency] !== undefined ? exchangeRates[currentCurrency] : 1;
+function formatMoney(amount, code) {
+  if (typeof amount !== 'number' || !isFinite(amount)) return '—';
+  try {
+    return new Intl.NumberFormat(undefined, {
+      style: 'currency',
+      currency: code,
+      minimumFractionDigits: code === 'JPY' ? 0 : 2,
+      maximumFractionDigits: code === 'JPY' ? 0 : 2
+    }).format(amount);
+  } catch (e) {
+    const symbol = getCurrencySymbol(code);
+    return `${symbol}${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  }
+}
 
+function getCurrencySymbol(code) {
+  const symbols = {
+    USD: '$', NZD: 'NZ$', EUR: '€', GBP: '£', JPY: '¥', CNY: '¥', AUD: 'A$', CAD: 'C$',
+    CHF: 'CHF ', INR: '₹', SGD: 'S$', HKD: 'HK$', SEK: 'SEK ', KRW: '₩', NOK: 'NOK ',
+    MXN: 'MXN ', TWD: 'NT$', ZAR: 'R ', RUB: '₽', BRL: 'R$', DKK: 'DKK ', PLN: 'zł', TRY: '₺'
+  };
+  return symbols[code] || code + ' ';
+}
+
+function convertAndUpdate(currency = 'USD') {
+  currentCurrency = currency;
+  const rate = exchangeRates[currency] || 1;
+  console.log(`Converting to ${currency} (rate ${rate.toFixed(4)})`);
+
+  let count = 0;
   currencyDependentIds.forEach(id => {
     const usdVal = originalValues[id];
-    if (usdVal !== undefined) {
+    if (usdVal !== undefined && usdVal !== null) {
       const converted = usdVal * rate;
-      updateElementsById(id, formatMoney(converted, currentCurrency));
+      updateElementsById(id, formatMoney(converted, currency));
+      count++;
+    }
+  });
+  console.log(`Applied conversion to ${count} fields`);
+}
+
+// ────────────────────────────────────────────────
+//  UTILITY FUNCTIONS
+// ────────────────────────────────────────────────
+
+function updateElementsById(id, value) {
+  if (!id) return;
+  document.querySelectorAll(`[id="${id}"]`).forEach(el => {
+    if (el.tagName === "PRE") {
+      el.textContent = value;
+    } else {
+      el.textContent = value;
     }
   });
 }
 
-// ---------- THEME TOGGLE ----------
-function initThemeToggle() {
-  const themeToggle = document.getElementById("theme-toggle");
-  if (!themeToggle) return;
-  const savedTheme = localStorage.getItem("theme");
-  if (savedTheme === "dark") {
-    document.body.classList.add("dark");
-    themeToggle.textContent = "☀️";
+// ────────────────────────────────────────────────
+//  DATA FETCHERS
+// ────────────────────────────────────────────────
+
+async function fetchSheetMetrics() {
+  if (!apiKey || !sheetId) {
+    console.warn("Missing Google Sheets config");
+    return;
   }
-  themeToggle.addEventListener("click", () => {
+
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetRange)}?key=${apiKey}`;
+
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) {
+      console.warn("Sheets fetch failed", res.status);
+      return;
+    }
+
+    const { values } = await res.json();
+    if (!values) return;
+
+    originalValues = {}; // reset
+
+    values.forEach(([keyRaw, valRaw]) => {
+      if (!keyRaw) return;
+      const key = keyRaw.trim();
+
+      // Display raw value from sheet first
+      updateElementsById(key, valRaw || "—");
+
+      // Parse number (tolerant to $, commas, spaces, etc.)
+      let numStr = (valRaw || "").toString()
+        .replace(/[^\d.-]/g, '')
+        .replace(/^[-.]+/, '')
+        .replace(/[.]+/g, '.')
+        .replace(/,$/, '');
+
+      const num = parseFloat(numStr);
+
+      if (!isNaN(num) && isFinite(num) && currencyDependentIds.includes(key)) {
+        originalValues[key] = num;
+        console.log(`Stored convertible value → ${key}: ${num} (raw: ${valRaw})`);
+      }
+    });
+
+    console.log("Convertible values stored:", Object.keys(originalValues));
+  } catch (err) {
+    console.error("fetchSheetMetrics error:", err);
+  }
+}
+
+async function fetchDataJson() {
+  try {
+    const res = await fetch("Data.json", { cache: "no-store" });
+    if (!res.ok) return;
+    const data = await res.json();
+    // Add handling if you use Data.json for anything
+  } catch (err) {
+    console.error("fetchDataJson error:", err);
+  }
+}
+
+// ────────────────────────────────────────────────
+//  INIT FUNCTIONS
+// ────────────────────────────────────────────────
+
+function initThemeToggle() {
+  const toggle = document.getElementById("theme-toggle");
+  if (!toggle) return;
+
+  const saved = localStorage.getItem("theme");
+  if (saved === "dark") {
+    document.body.classList.add("dark");
+    toggle.textContent = "☀️";
+  }
+
+  toggle.addEventListener("click", () => {
     document.body.classList.toggle("dark");
-    themeToggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
+    toggle.textContent = document.body.classList.contains("dark") ? "☀️" : "🌙";
     localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
   });
 }
 
-// ---------- TABS ----------
 function initTabs() {
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
+
       document.querySelectorAll(".tab-content").forEach(tab => tab.classList.remove("active"));
       const target = document.getElementById(btn.dataset.tab);
       if (target) target.classList.add("active");
@@ -92,15 +266,11 @@ function initTabs() {
   });
 }
 
-// ---------- SCREENSHOT ----------
 function initScreenshot() {
   const btn = document.getElementById("screenshot-btn");
-  if (!btn) return;
+  if (!btn || typeof html2canvas !== "function") return;
+
   btn.addEventListener("click", async () => {
-    if (typeof html2canvas !== "function") {
-      alert("html2canvas not loaded");
-      return;
-    }
     const canvas = await html2canvas(document.querySelector("main"));
     const link = document.createElement("a");
     link.download = "metrics.png";
@@ -109,91 +279,60 @@ function initScreenshot() {
   });
 }
 
-// ---------- UPDATE ELEMENTS ----------
-function updateElementsById(id, value) {
-  if (!id) return;
-  document.querySelectorAll(`[id="${id}"]`).forEach(el => {
-    if (el.tagName === "PRE") el.textContent = value;
-    else el.textContent = value;
-  });
-}
+// ────────────────────────────────────────────────
+//  MAIN DATA LOADER
+// ────────────────────────────────────────────────
 
-// ---------- FETCH GOOGLE SHEETS (now also saves original USD values) ----------
-async function fetchSheetMetrics() {
-  if (!apiKey || !sheetId) return;
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(sheetRange)}?key=${apiKey}`;
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), sheetFetchTimeoutMs);
-
-  try {
-    const res = await fetch(url, { signal: controller.signal, cache: "no-store" });
-    clearTimeout(timeout);
-    if (!res.ok) return;
-    const data = await res.json();
-    if (!data.values) return;
-
-    data.values.forEach(row => {
-      const id = (row[0] || "").toString().trim();
-      let value = (row[1] !== undefined) ? row[1].toString() : "";
-      if (id) {
-        updateElementsById(id, value);
-
-        // Store clean numeric USD value for conversion
-        const cleaned = value.replace(/[^0-9.-]+/g, '');
-        const num = parseFloat(cleaned);
-        if (!isNaN(num) && currencyDependentIds.includes(id)) {
-          originalValues[id] = num;
-        }
-      }
-    });
-  } catch (err) {
-    if (err.name !== "AbortError") console.error("fetchSheetMetrics error:", err);
-  } finally {
-    clearTimeout(timeout);
-  }
-}
-
-// ---------- OTHER FETCHES (unchanged) ----------
-async function fetchDataJson() {
-  try {
-    const res = await fetch("Data.json", { cache: "no-store" });
-    if (!res.ok) return;
-    const data = await res.json();
-    // add any extra Data.json handling here if you use it
-  } catch (err) {
-    console.error("fetchDataJson error:", err);
-  }
-}
-
-// ---------- MAIN LOADER ----------
 async function loadAllData() {
+  console.log("Starting data load...");
+
   await Promise.allSettled([
     fetchDataJson(),
     fetchSheetMetrics(),
     fetchExchangeRates()
   ]);
+
+  console.log("Data load complete");
+
+  // Apply saved / default currency
+  const saved = localStorage.getItem('selectedCurrency') || 'USD';
+  const select = document.getElementById('currencySelect');
+  if (select) {
+    select.value = saved;
+  }
+  convertAndUpdate(saved);
 }
 
-// ---------- INIT ----------
+// ────────────────────────────────────────────────
+//  START WHEN PAGE IS READY
+// ────────────────────────────────────────────────
+
 document.addEventListener("DOMContentLoaded", () => {
   initThemeToggle();
   initTabs();
   initScreenshot();
 
-  loadAllData().then(() => {
-    // Apply saved currency (or default USD)
-    const saved = localStorage.getItem('selectedCurrency') || 'USD';
-    convertAndUpdate(saved);
+  const currencySelect = document.getElementById('currencySelect');
+  if (currencySelect) {
+    // First try saved preference (user manually changed it before)
+    let initialCurrency = localStorage.getItem('selectedCurrency');
 
-    // Hook up the dropdown (only exists on metrics.html)
-    const currencySelect = document.getElementById('currencySelect');
-    if (currencySelect) {
-      currencySelect.value = saved;
-      currencySelect.addEventListener('change', e => {
-        const newCur = e.target.value;
-        localStorage.setItem('selectedCurrency', newCur);
-        convertAndUpdate(newCur);
-      });
+    // If no saved choice → use auto-detection
+    if (!initialCurrency) {
+      initialCurrency = detectLikelyCurrency();
+      localStorage.setItem('selectedCurrency', initialCurrency); // remember it
     }
-  });
+
+    currencySelect.value = initialCurrency;
+    convertAndUpdate(initialCurrency);
+
+    // Still allow manual change
+    currencySelect.addEventListener('change', e => {
+      const newCurrency = e.target.value;
+      localStorage.setItem('selectedCurrency', newCurrency);
+      convertAndUpdate(newCurrency);
+    });
+  }
+
+  loadAllData();
 });
