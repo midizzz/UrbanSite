@@ -231,3 +231,245 @@ body.dark .tab-content {
   background: #222;
 }
 
+.card-img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.card-img.diagram {
+  object-fit: contain;
+  background: #fff;
+}
+
+.photo-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.photo-strip img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+
+body.dark .card-img.diagram {
+  background: #1a1a1a;
+}
+
+.card.archive {
+  grid-column: 1 / -1;
+}
+
+.archive-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.75rem 0 0;
+  columns: 2;
+  gap: 1.5rem;
+}
+
+.archive-list li {
+  margin: 0.35rem 0;
+  break-inside: avoid;
+}
+
+@media (max-width: 700px) {
+  .archive-list {
+    columns: 1;
+  }
+}
+
+.quote-form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 40rem;
+  margin-top: 1rem;
+}
+
+.quote-form label {
+  display: grid;
+  gap: 0.3rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.quote-form input,
+.quote-form textarea {
+  font-family: 'Montserrat', sans-serif;
+  padding: 0.5rem;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+}
+
+.quote-form button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  background: #4682B4;
+  color: white;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  justify-self: start;
+}
+
+body.dark .quote-form input,
+body.dark .quote-form textarea {
+  background: #333;
+  border-color: #666;
+  color: #fdfdfd;
+}
+
+.quote-form .honey {
+  display: none !important;
+}
+
+.quote-form .hint {
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+
+.quote-form input[type="file"] {
+  padding: 0.35rem 0;
+  border: none;
+  background: transparent;
+}
+
+main.home {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+main.home > .hero {
+  margin: 1.5rem 0 0;
+}
+
+main.home > .cards {
+  margin-bottom: 0;
+}
+
+main.home .card h3 {
+  margin-bottom: 0.5rem;
+}
+
+main.home .card p {
+  margin-top: 0;
+}
+
+.card.subscribe {
+  grid-column: 1 / -1;
+}
+
+.subscribe-form {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 40rem;
+  margin-top: 1rem;
+}
+
+.subscribe-form label {
+  display: grid;
+  gap: 0.3rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.subscribe-form input[type="text"],
+.subscribe-form input[type="email"] {
+  font-family: 'Montserrat', sans-serif;
+  padding: 0.5rem;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  background: #fff;
+  color: inherit;
+}
+
+.plan-options {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.plan-options legend {
+  padding: 0;
+  margin-bottom: 0.35rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.plan-choice {
+  display: flex !important;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+}
+
+.subscribe-form button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  background: #4682B4;
+  color: white;
+  cursor: pointer;
+  font-family: 'Montserrat', sans-serif;
+  justify-self: start;
+}
+
+.subscribe-status {
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+}
+
+body.dark .subscribe-form input[type="text"],
+body.dark .subscribe-form input[type="email"] {
+  background: #333;
+  border-color: #666;
+  color: #fdfdfd;
+}
+
+.card.subscribe h3 {
+  margin-bottom: 0.5rem;
+}
+
+.card.subscribe > p {
+  margin-top: 0;
+}
+
+.subscribe-block {
+  margin-bottom: 0;
+}
+
+main.metrics > .subscribe-block {
+  margin-top: 2rem;
+}
+
+a.card.jump {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  display: block;
+}
+
+a.card.jump:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.16);
+}
+
+body.dark a.card.jump:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+}
+
+.segment {
+  scroll-margin-top: 1.5rem;
+}

@@ -253,6 +253,42 @@ function initThemeToggle() {
   });
 }
 
+
+function initQuoteForm() {
+  // Quote form posts to FormSubmit so file attachments can be emailed.
+}
+
+
+// Set after the UE Subscribers Google Form / Apps Script is connected.
+const SUBSCRIBE_ENDPOINT = "https://script.google.com/macros/s/AKfycbyH-U4JG8323q3U35yvThAsV5Ghf-_vV4t0tNtb9f9EZmprtgJ2zG8duq8GjJZh7TqzlQ/exec";
+
+function initSubscribeForm() {
+  document.querySelectorAll(".subscribe-form").forEach((form) => {
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const status = form.querySelector(".subscribe-status");
+      const data = new FormData(form);
+      if (!SUBSCRIBE_ENDPOINT) {
+        if (status) {
+          status.hidden = false;
+          status.textContent = "Subscribe is being connected to the company sheet.";
+        }
+        return;
+      }
+      fetch(SUBSCRIBE_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        body: data
+      });
+      if (status) {
+        status.hidden = false;
+        status.textContent = "You're on the list.";
+      }
+      form.reset();
+    });
+  });
+}
+
 function initTabs() {
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -310,6 +346,8 @@ async function loadAllData() {
 document.addEventListener("DOMContentLoaded", () => {
   initThemeToggle();
   initTabs();
+  initQuoteForm();
+  initSubscribeForm();
   initScreenshot();
 
   const currencySelect = document.getElementById('currencySelect');
@@ -334,5 +372,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  loadAllData();
+  // Home (bitcoin/share cards) and Metrics both need sheet + FX data.
+  // Skip the fetch on About / Engineering / Treasury.
+  if (currencySelect || document.querySelector("main.metrics") || document.getElementById("btc-pershare")) {
+    loadAllData();
+  }
 });

@@ -20,6 +20,8 @@
     <nav>
       <a href="index.html" class="active">HOME</a>
       <a href="about.html">ABOUT</a>
+      <a href="engineering.html">ENGINEERING</a>
+      <a href="treasury.html">TREASURY</a>
       <a href="metrics.html">METRICS</a>
     </nav>
     <button id="theme-toggle">🌙</button>
@@ -28,7 +30,7 @@
   <main class="home">
     <section class="hero">
       <h2>URBAN ENVIRONMENTAL</h2>
-      <p>FUTURE ENERGY ENGINEERING</p>
+      <p><FUTURE ENERGY ENGINEERING</p>
     </section>
     <section class="cards">
         <div class="card">
@@ -84,6 +86,35 @@
       </div>
 </section>
 
+
+    <section class="cards subscribe-block">
+      <div class="card subscribe">
+        <h3>SUBSCRIBE</h3>
+        <p>Get company updates by email.</p>
+        <form class="subscribe-form">
+          <label>Name
+            <input type="text" name="name" autocomplete="name">
+          </label>
+          <label>Email
+            <input type="email" name="email" required autocomplete="email">
+          </label>
+          <fieldset class="plan-options">
+            <legend>Plan</legend>
+            <label class="plan-choice">
+              <input type="radio" name="plan" value="Annual" required>
+              <span>Annual</span>
+            </label>
+            <label class="plan-choice">
+              <input type="radio" name="plan" value="Engineering+">
+              <span>Engineering+</span>
+            </label>
+          </fieldset>
+          <input type="hidden" name="page" value="HOME">
+          <button type="submit">Subscribe</button>
+          <p class="subscribe-status" hidden></p>
+        </form>
+      </div>
+    </section>
 
   </main>
 
