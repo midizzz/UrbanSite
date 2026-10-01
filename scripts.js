@@ -262,12 +262,50 @@ function initQuoteForm() {
 // Set after the UE Subscribers Google Form / Apps Script is connected.
 const SUBSCRIBE_ENDPOINT = "https://script.google.com/macros/s/AKfycbyH-U4JG8323q3U35yvThAsV5Ghf-_vV4t0tNtb9f9EZmprtgJ2zG8duq8GjJZh7TqzlQ/exec";
 
+// Plan options are independent checkboxes (Annual, Engineering+).
+// At least one must be ticked; the payload sends a single "plan" field
+// listing every ticked option, e.g. "Annual, Engineering+".
+const PLAN_REQUIRED_MESSAGE = "Please choose at least one plan.";
+
+function getPlanBoxes(form) {
+  return Array.from(form.querySelectorAll('.plan-options input[type="checkbox"]'));
+}
+
+function getSelectedPlans(form) {
+  return getPlanBoxes(form).filter((box) => box.checked).map((box) => box.value);
+}
+
+function updatePlanValidity(form) {
+  const boxes = getPlanBoxes(form);
+  if (!boxes.length) return true;
+  const ok = boxes.some((box) => box.checked);
+  boxes[0].setCustomValidity(ok ? "" : PLAN_REQUIRED_MESSAGE);
+  return ok;
+}
+
+function buildSubscribeData(form) {
+  const data = new FormData(form);
+  getPlanBoxes(form).forEach((box) => data.delete(box.name));
+  data.set("plan", getSelectedPlans(form).join(", "));
+  return data;
+}
+
 function initSubscribeForm() {
   document.querySelectorAll(".subscribe-form").forEach((form) => {
+    getPlanBoxes(form).forEach((box) => {
+      box.addEventListener("change", () => updatePlanValidity(form));
+    });
+    form.addEventListener("reset", () => setTimeout(() => updatePlanValidity(form), 0));
+    updatePlanValidity(form);
+
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const status = form.querySelector(".subscribe-status");
-      const data = new FormData(form);
+      if (!updatePlanValidity(form)) {
+        form.reportValidity();
+        return;
+      }
+      const data = buildSubscribeData(form);
       if (!SUBSCRIBE_ENDPOINT) {
         if (status) {
           status.hidden = false;
