@@ -473,3 +473,208 @@ body.dark a.card.jump:hover {
 .segment {
   scroll-margin-top: 1.5rem;
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   LOGO INTRO  (home page only, once per browser session)
+   ════════════════════════════════════════════════════════════════════
+   The behaviour lives in intro.js; this block is only the look.
+   See INTRO-README.md for an overview and tweaking guide.
+
+   How the pieces fit together:
+     1. html.ue-intro-pending::before  – an instant full-screen cover that
+        intro.js switches on from <head>, so the page never flashes before
+        the intro appears.
+     2. .ue-intro                       – the real overlay (built by intro.js
+        once the DOM is ready). Contains, back to front:
+          canvas            → the "sucking wind" streaks + pop ring
+          .ue-intro__glow   → soft radial halo behind the logo
+          .ue-intro__logo   → the UE logo PNG in its original colours
+          .ue-intro__enter  → the "Click / Tap to enter" button
+     3. .is-leaving                     – added on dismissal → 0.4s fade out.
+
+   Colour palette – all taken from the logo itself.
+   UELogo-removebg-preview.png is a single colour: #D8EBFC
+   (hsl 208°, 86%, 92%). Every other colour below is the same 208° hue,
+   just lighter/darker, so the streaks, ring and glow match the logo:
+     #D8EBFC  logo colour (never recoloured)
+     #EEF2F6  light-mode background (a faint tint of the logo hue, slightly
+              darker than the site's #fdfdfd so the pale logo reads)
+     #90BADF  mid tint   – light-mode streaks / dark-mode secondary streaks
+     #669CCC  deeper tint – light-mode streaks, ring
+     #437EB1  deep tint  – light-mode "click to enter" text
+     #315372  shade      – light-mode logo shadow/outline + halo
+     #111111  dark-mode background (same as the site's dark mode body)
+   The particle colours themselves are set in intro.js (PALETTE).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 1. Pre-paint cover.
+   Painted before <body> is parsed. If JavaScript fails or the page loads
+   slowly, the failsafe animation hides it after 4s so content is never
+   blocked. intro.js removes this class as soon as the real overlay exists. */
+html.ue-intro-pending::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  background: var(--ue-intro-bg, #EEF2F6);
+  animation: ue-intro-failsafe 0.3s ease-out 4s forwards;
+}
+
+html.ue-intro-dark { --ue-intro-bg: #111; }
+
+/* 2. The overlay (light theme values by default). */
+.ue-intro {
+  --ue-intro-bg: #EEF2F6;
+  /* Halo behind the logo: a soft slate shade of the logo hue, which gives
+     the pale logo something to stand out against on a light background. */
+  --ue-intro-glow: rgba(49, 83, 114, 0.16);
+  /* Thin outline + soft drop shadow so #D8EBFC is legible on light bg. */
+  --ue-intro-logo-shadow:
+    drop-shadow(0 0 1px rgba(49, 83, 114, 0.55))
+    drop-shadow(0 6px 18px rgba(49, 83, 114, 0.28));
+  --ue-intro-hint: #437EB1;
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;            /* above everything on the page */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ue-intro-bg);
+  cursor: pointer;                /* the whole overlay is clickable */
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Dark theme: chosen by intro.js from the site's saved theme
+   (localStorage "theme" === "dark", the same flag scripts.js uses). */
+.ue-intro.is-dark {
+  --ue-intro-bg: #111;
+  --ue-intro-glow: rgba(216, 235, 252, 0.20);   /* logo colour glow */
+  --ue-intro-logo-shadow: drop-shadow(0 0 22px rgba(216, 235, 252, 0.25));
+  --ue-intro-hint: #D8EBFC;
+}
+
+/* While the intro is up, the page behind can't scroll. */
+html.ue-intro-lock,
+html.ue-intro-lock body {
+  overflow: hidden;
+}
+
+/* Canvas for the wind streaks: fills the overlay, ignores the mouse. */
+.ue-intro canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Halo behind the logo. intro.js animates its transform/opacity each frame
+   (dim during the wind, flares on the pop, gently pulses while idle). */
+.ue-intro__glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(80vw, 520px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--ue-intro-glow) 0%, transparent 65%);
+  transform: translate(-50%, -50%) scale(0.3);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* The logo: the original PNG, untouched colours. intro.js animates its
+   scale/opacity (inhale → pop → breathe). The shadow is a filter so it
+   follows the letter shapes rather than the image box. */
+.ue-intro__logo {
+  position: relative;
+  display: block;
+  width: min(46vw, 260px);
+  height: auto;
+  aspect-ratio: 592 / 378;        /* native PNG size, avoids layout jump */
+  filter: var(--ue-intro-logo-shadow);
+  transform: scale(0.15);
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform, opacity;
+}
+
+/* "Click / Tap to enter" button. Fades in after the pop, then pulses
+   softly. It gets keyboard focus automatically (intro.js). */
+.ue-intro__enter {
+  position: absolute;
+  left: 50%;
+  bottom: max(12vh, 64px);
+  transform: translate(-50%, 8px);
+  padding: 0.6rem 1.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ue-intro-hint);
+  font-family: 'Montserrat', system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 400;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.ue-intro__enter.is-shown {
+  opacity: 0.9;
+  transform: translate(-50%, 0);
+  animation: ue-intro-hint-pulse 2.4s ease-in-out 0.6s infinite;
+}
+
+.ue-intro__enter:focus { outline: none; }
+
+/* Visible focus ring for keyboard users. */
+.ue-intro__enter:focus-visible {
+  outline: 1.5px solid var(--ue-intro-hint);
+  outline-offset: 4px;
+}
+
+@keyframes ue-intro-hint-pulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.45; }
+}
+
+/* 3. Dismissal: fade the whole overlay out, then intro.js removes it. */
+.ue-intro.is-leaving {
+  transition: opacity 0.4s ease-out, visibility 0s linear 0.4s;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Reduced motion (prefers-reduced-motion): no particles or scaling; the
+   logo and button simply fade in, then wait for a click/key as normal. */
+.ue-intro--reduced .ue-intro__logo {
+  transform: none;
+  animation: ue-intro-fadein 0.4s ease-out forwards;
+}
+
+.ue-intro--reduced .ue-intro__enter,
+.ue-intro--reduced .ue-intro__enter.is-shown {
+  transform: translate(-50%, 0);
+  animation: none;
+  transition: opacity 0.4s ease-out;
+}
+
+/* After dismissal intro.js moves focus to <main> (tabindex=-1) so keyboard
+   users continue from the page content; hide the focus ring on it. */
+main[tabindex="-1"]:focus { outline: none; }
+
+@keyframes ue-intro-fadein {
+  to { opacity: 1; }
+}
+
+/* Used by the pre-paint cover's 4s safety timeout. */
+@keyframes ue-intro-failsafe {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
+}
