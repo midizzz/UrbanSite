@@ -19,7 +19,7 @@ site. There is no on-screen button or hint; the whole overlay is the control.
    background tab) and adds `ue-intro-pending` to `<html>`. A CSS
    `::before` then covers the screen immediately, so the page never flashes.
 2. **DOM ready:** it builds the overlay (`.ue-intro`), which holds a `<canvas>`
-   for the wind, the logo `<img>` and, in dark mode only, a soft glow. The
+   for the wind, the logo `<img>` and, in dark mode only, a faint glow. The
    overlay itself is the control (`role="button"`, `tabindex="0"`,
    `aria-label="Enter site"`) and it gets focus straight away. The page behind
    is made `inert` and can't scroll.
@@ -75,12 +75,17 @@ and `alpha`.
 | Use | Light mode | Dark mode |
 |-----|-----------|-----------|
 | Background | `#C4D2DE` soft blue-grey (hsl 208°, 28%, 82%) | `#111111` (site dark bg) |
-| Logo | `#D8EBFC` (PNG as-is, no outline/shadow) | `#D8EBFC` (PNG as-is) + `#D8EBFC` glow |
+| Logo | `#D8EBFC` (PNG as-is) + very subtle shadow `drop-shadow(0 6px 16px)` in `#315372` at 9%, no outline | `#D8EBFC` (PNG as-is) + subtle glow `drop-shadow(0 0 18px)` in `#D8EBFC` at 11% |
 | Streaks (main / alt) | `#D8EBFC` / `#72A1CA` | `#D8EBFC` / `#90BADF` |
-| Glow behind logo | none | `#D8EBFC` at 20% |
+| Glow behind logo | none | `#D8EBFC` at 9% (peak, at the pop) |
 | Keyboard focus ring | `#ECF5FE` | `#90BADF` |
 
-In light mode the logo stays visible through colour alone: the blue-grey
+**Brand rule:** the logo is always pale blue `#D8EBFC` in both modes. The
+shadow and glow are `drop-shadow` filters that only paint around the
+letters, and the logo's opacity is 1 from the pop onwards, so its rendered
+colour is exactly `#D8EBFC`.
+
+In light mode the logo stays visible mainly through colour: the blue-grey
 background is a little darker than the pale logo, so the logo reads as a
 lighter shape on it. If you want more contrast, darken `--ue-intro-bg` a
 little (e.g. `#B9C8D5`). Keep it in the 208° hue so it still matches.

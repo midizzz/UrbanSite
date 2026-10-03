@@ -546,10 +546,12 @@ body.dark a.card.jump:hover {
    UELogo-removebg-preview.png is a single colour: #D8EBFC
    (hsl 208°, 86%, 92%). Every other colour below is the same 208° hue,
    just lighter/darker, so the streaks and glow match the logo:
-     #D8EBFC  logo colour (never recoloured) – also the main streak colour
+     #D8EBFC  logo colour in BOTH modes (never recoloured) – also the main
+              streak colour; dark-mode glow is this colour at 9–11%
      #C4D2DE  light-mode background: a soft blue-grey of the logo hue
               (hsl 208°, 28%, 82%). Darker than the logo, so the pale logo
-              stands out by colour alone – no outline, shadow or halo.
+              stands out by colour; no outline or halo
+     #315372  dark shade – light-mode logo shadow, at 9% only
      #72A1CA  deeper tint – light-mode secondary streaks
      #ECF5FE  lighter tint – light-mode keyboard focus ring
      #90BADF  mid tint   – dark-mode secondary streaks
@@ -573,11 +575,13 @@ html.ue-intro-pending::before {
 html.ue-intro-dark { --ue-intro-bg: #111; }
 
 /* 2. The overlay (light theme values by default).
-   Light mode: plain soft blue-grey background, logo as-is, no effects. */
+   Light mode: soft blue-grey background, logo as-is (#D8EBFC) with a VERY
+   subtle soft shadow in a dark shade of the logo blue (#315372 at 9%).
+   No outline, no glow. */
 .ue-intro {
   --ue-intro-bg: #C4D2DE;
   --ue-intro-glow: transparent;          /* no glow in light mode */
-  --ue-intro-logo-shadow: none;          /* no outline/shadow in light mode */
+  --ue-intro-logo-shadow: drop-shadow(0 6px 16px rgba(49, 83, 114, 0.09));
   --ue-intro-focus: #ECF5FE;             /* keyboard focus ring */
   position: fixed;
   inset: 0;
@@ -603,8 +607,11 @@ html.ue-intro-dark { --ue-intro-bg: #111; }
    (localStorage "theme" === "dark", the same flag scripts.js uses). */
 .ue-intro.is-dark {
   --ue-intro-bg: #111;
-  --ue-intro-glow: rgba(216, 235, 252, 0.20);   /* logo colour glow */
-  --ue-intro-logo-shadow: drop-shadow(0 0 22px rgba(216, 235, 252, 0.25));
+  /* Subtle glows in the logo colour (about half the earlier strength):
+     the flare behind the logo peaks at 9%, the glow hugging the letters
+     is 11%. */
+  --ue-intro-glow: rgba(216, 235, 252, 0.09);
+  --ue-intro-logo-shadow: drop-shadow(0 0 18px rgba(216, 235, 252, 0.11));
   --ue-intro-focus: #90BADF;
 }
 
@@ -640,10 +647,12 @@ html.ue-intro-lock body {
   will-change: transform, opacity;
 }
 
-/* The logo: the original PNG, untouched colours. intro.js animates its
-   scale/opacity (inhale → pop → breathe). In dark mode a soft glow is
-   added with a filter so it follows the letter shapes; light mode has
-   no filter. */
+/* The logo: the original PNG, untouched colours – it renders as exactly
+   #D8EBFC in both modes (brand rule). intro.js animates its scale/opacity
+   (inhale → pop → breathe); opacity is 1 from the pop onwards. The
+   drop-shadow filter (subtle shadow in light mode, subtle glow in dark
+   mode) only paints *around* the letter shapes; it never tints the logo
+   itself. */
 .ue-intro__logo {
   position: relative;
   display: block;

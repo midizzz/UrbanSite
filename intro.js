@@ -11,8 +11,10 @@
                          edges and get sucked into the UE logo, which
                          slowly "inhales" (grows from 15% to 55%).
      1080 – 1450  POP    The logo springs to full size with a small
-                         overshoot (in dark mode the glow behind the logo
-                         flares). No ring or circle is drawn.
+                         overshoot (in dark mode the faint glow behind the
+                         logo flares softly). No ring or circle is drawn.
+                         The logo is always the original PNG, #D8EBFC, in
+                         both modes.
      1450 – ...   IDLE   The logo stays, breathing very gently, with a
                          faint ongoing breeze, until the visitor dismisses
                          it. There is no button or text hint.
@@ -157,7 +159,8 @@
       overlay.appendChild(canvas);
     }
     if (!reduced && dark) {
-      // Light mode has no glow/halo at all – contrast comes from colours.
+      // Light mode has no glow/halo at all – contrast comes from colours
+      // (plus a very faint CSS drop-shadow on the logo).
       glow = doc.createElement("div");
       glow.className = "ue-intro__glow";
       glow.setAttribute("aria-hidden", "true");
@@ -394,6 +397,8 @@
 
     // Glow (dark mode only): faint and small during the wind, flares to
     // full on the pop, relaxes to 35% and then pulses gently while idle.
+    // "Full" is the CSS --ue-intro-glow colour (#D8EBFC at only 9%), so the
+    // flare stays subtle; change that variable to make it stronger/weaker.
     if (glow) {
       var g, gs;
       if (t < T_POP) {
