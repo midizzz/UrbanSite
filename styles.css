@@ -514,8 +514,8 @@ main.metrics > .subscribe-block {
      .cta-row  - Contact + Subscribe (every page)
      .pair-row - shared class for other pairs, e.g. Engineering:
                  Quote + Archive, and the Treasury / Software enquire
-                 cards, which sit at half width (left) until a second
-                 card is added beside them. */
+                 rows, which are ready for a second card (a lone card
+                 spans the full row, see below). */
 @media (min-width: 700px) {
   .cards.cta-row,
   .cards.pair-row {
@@ -524,6 +524,54 @@ main.metrics > .subscribe-block {
   .cards.cta-row .card.subscribe,
   .cards.pair-row .card.archive {
     grid-column: auto;               /* undo the full-row span */
+  }
+}
+
+/* A .pair-row with only ONE card (Engineering: ENQUIRE TREASURY and
+   ENQUIRE SOFTWARE for now) spans the full row, and its form spreads out
+   sideways as the card gets wider. With two cards (50/50) none of this
+   applies and the form stays stacked inside its half-width card.
+   The card is a size container, so the steps follow the card's width:
+     under 640px   stacked (as before)
+     640-1099px    Name | Email, Details full width, button right
+     1100px+       Name + Email stacked left, Details beside them, button right */
+.cards.pair-row > .card:only-child {
+  grid-column: 1 / -1;
+  container-type: inline-size;
+}
+
+@container (min-width: 640px) {
+  .pair-row > .card:only-child .quote-form {
+    max-width: none;                     /* drop the 40rem cap */
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "name    email"
+      "details details"
+      ".       button";
+    column-gap: 1.5rem;
+  }
+  .pair-row > .card:only-child .quote-form label:nth-of-type(1) { grid-area: name; }
+  .pair-row > .card:only-child .quote-form label:nth-of-type(2) { grid-area: email; }
+  .pair-row > .card:only-child .quote-form label:nth-of-type(3) { grid-area: details; }
+  .pair-row > .card:only-child .quote-form button { grid-area: button; justify-self: end; }
+}
+
+@container (min-width: 1100px) {
+  .pair-row > .card:only-child .quote-form {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-areas:
+      "name    details"
+      "email   details"
+      ".       button";
+  }
+  /* Details textarea fills the height of Name + Email beside it */
+  .pair-row > .card:only-child .quote-form label:nth-of-type(3) {
+    grid-template-rows: auto 1fr;
+  }
+  .pair-row > .card:only-child .quote-form textarea {
+    height: 100%;
+    box-sizing: border-box;
+    resize: vertical;
   }
 }
 
