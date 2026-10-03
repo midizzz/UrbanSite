@@ -455,6 +455,55 @@ main.metrics > .subscribe-block {
   margin-top: 2rem;
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   WIDE LAYOUT: subscribe + contact cards (branch layout-wide)
+   ════════════════════════════════════════════════════════════════════
+   The page stays full width. This block only:
+     1. lets the subscribe form fill its card once the card is wide
+        enough (Name | Email side by side, plan checkboxes in one row,
+        button on the right). Narrow cards and mobile stay stacked.
+     2. puts the contact card beside the subscribe card (.cta-row,
+        About page) as two equal-height columns from 900px up.
+   Kept away from the end of the file so it merges cleanly with the
+   logo-intro styles, which are appended at the end. */
+
+/* The subscribe card is a size container, so its form reacts to the
+   card's own width (full-width alone, or half width in .cta-row). */
+.card.subscribe {
+  container-type: inline-size;
+}
+
+@container (min-width: 560px) {
+  .subscribe-form {
+    max-width: none;                 /* drop the 40rem / 640px cap */
+    grid-template-columns: 1fr 1fr;  /* Name | Email */
+    column-gap: 1.5rem;
+    align-items: end;                /* button lines up with the checkboxes */
+  }
+  .subscribe-form .plan-options {
+    grid-auto-flow: column;          /* Annual  Engineering+ in one row */
+    justify-content: start;
+    column-gap: 1.5rem;
+  }
+  .subscribe-form button {
+    justify-self: end;               /* button on the right */
+  }
+  .subscribe-form .subscribe-status {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Contact + Subscribe side by side (stacks below 900px). The grid's
+   default stretch gives both cards the same height. */
+@media (min-width: 900px) {
+  .cards.cta-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .cards.cta-row .card.subscribe {
+    grid-column: auto;               /* undo the full-row span */
+  }
+}
+
 a.card.jump {
   color: inherit;
   text-decoration: none;
