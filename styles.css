@@ -462,8 +462,10 @@ main.metrics > .subscribe-block {
      1. lets the subscribe form fill its card once the card is wide
         enough (Name | Email side by side, plan checkboxes in one row,
         button on the right). Narrow cards and mobile stay stacked.
-     2. puts the contact card beside the subscribe card (.cta-row,
-        About page) as two equal-height columns from 900px up.
+     2. puts the contact card beside the subscribe card (.cta-row, on
+        every page): 50/50 from 700px up, one column on phones.
+     3. makes every card row stack the same way: one column on phones
+        (under 700px), and no lone card left on a row of 4 or on Metrics.
    Kept away from the end of the file so it merges cleanly with the
    logo-intro styles, which are appended at the end. */
 
@@ -493,15 +495,51 @@ main.metrics > .subscribe-block {
   }
 }
 
-/* Contact + Subscribe side by side (stacks below 900px). The grid's
-   default stretch gives both cards the same height. */
-@media (min-width: 900px) {
+/* Phones (under 700px): every card row is a single column. Above that
+   the original auto-fit grid applies. 700px matches .archive-list. */
+@media (max-width: 699px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Contact + Subscribe: 50/50 from 700px up (tablet and desktop). The
+   grid's default stretch gives both cards the same height. */
+@media (min-width: 700px) {
   .cards.cta-row {
     grid-template-columns: 1fr 1fr;
   }
   .cards.cta-row .card.subscribe {
     grid-column: auto;               /* undo the full-row span */
   }
+}
+
+/* Rows of exactly 4 cards (Engineering photos): 2 x 2 on tablet, so the
+   auto-fit grid never leaves 3 + 1. 4 across from 1100px. */
+@media (min-width: 700px) and (max-width: 1099px) {
+  .cards:has(> .card:nth-child(4):last-child) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1100px) {
+  .cards:has(> .card:nth-child(4):last-child) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Metrics: 24 cards, so use column counts that divide 24 evenly
+   (3 / 4 / 6 / 8) instead of auto-fit, which leaves short last rows. */
+@media (min-width: 700px) {
+  main.metrics > .cards:not(.subscribe-block) { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1024px) {
+  main.metrics > .cards:not(.subscribe-block) { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 1400px) {
+  main.metrics > .cards:not(.subscribe-block) { grid-template-columns: repeat(6, 1fr); }
+}
+@media (min-width: 2000px) {
+  main.metrics > .cards:not(.subscribe-block) { grid-template-columns: repeat(8, 1fr); }
 }
 
 a.card.jump {
