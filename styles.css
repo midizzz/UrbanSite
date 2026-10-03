@@ -499,17 +499,30 @@ main.metrics > .subscribe-block {
    the original auto-fit grid applies. 700px matches .archive-list. */
 @media (max-width: 699px) {
   .cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);  /* minmax(0,..) so a wide child
+                                               (file input) can't push a card
+                                               past the screen edge */
+  }
+  .quote-form input[type="file"] {
+    max-width: 100%;
   }
 }
 
-/* Contact + Subscribe: 50/50 from 700px up (tablet and desktop). The
-   grid's default stretch gives both cards the same height. */
+/* Two-card rows: 50/50 from 700px up (tablet and desktop), one column
+   on phones (rule above). The grid's default stretch gives both cards
+   the same height.
+     .cta-row  - Contact + Subscribe (every page)
+     .pair-row - shared class for other pairs, e.g. Engineering:
+                 Quote + Archive, and the Treasury / Software enquire
+                 cards, which sit at half width (left) until a second
+                 card is added beside them. */
 @media (min-width: 700px) {
-  .cards.cta-row {
+  .cards.cta-row,
+  .cards.pair-row {
     grid-template-columns: 1fr 1fr;
   }
-  .cards.cta-row .card.subscribe {
+  .cards.cta-row .card.subscribe,
+  .cards.pair-row .card.archive {
     grid-column: auto;               /* undo the full-row span */
   }
 }
