@@ -575,6 +575,17 @@ main.metrics > .subscribe-block {
   }
 }
 
+/* Phone nav: the links wrap onto 2-3 lines next to the logo, with rows
+   only 19px apart. On phones each link gets 0.45rem top/bottom padding
+   (inline-block so it counts), so rows are ~33px apart (about +75%) and
+   the tap targets are taller. Desktop and tablet are unchanged. */
+@media (max-width: 699px) {
+  nav a {
+    display: inline-block;
+    padding: 0.45rem 0;
+  }
+}
+
 /* Rows of exactly 4 cards (Engineering photos): 2 x 2 on tablet, so the
    auto-fit grid never leaves 3 + 1. 4 across from 1100px. */
 @media (min-width: 700px) and (max-width: 1099px) {
