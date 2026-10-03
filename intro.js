@@ -20,7 +20,7 @@
                          the overlay fades out over 0.4s and is removed.
 
    WHEN IT SHOWS
-     - Once per browser tab session (sessionStorage "ueIntroSeen").
+     - Every time the home page loads, including refresh.
      - Not when the page is opened in a background tab.
      - ?intro=1 in the URL forces it; ?intro=0 disables it (for testing).
 
@@ -77,7 +77,7 @@
   /* ── Should we show it at all? ─────────────────────────────────────── */
   var force = /[?&]intro=1\b/.test(location.search);
   var never = /[?&]intro=0\b/.test(location.search);
-  if (never || (!force && store("get") === "1")) return;          // already seen this session
+  if (never) return;                                              // plays on every load and refresh of the home page
   if (doc.visibilityState === "hidden" && !force) return;         // opened in a background tab
 
   function mq(q) { try { return window.matchMedia(q).matches; } catch (e) { return false; } }
@@ -96,7 +96,6 @@
   // now, from <head>, so the page is never seen before the overlay.
   root.classList.add("ue-intro-pending");
   if (dark) root.classList.add("ue-intro-dark");
-  store("set", "1");         // mark as seen up front so a reload won't replay
 
   /* ── Timeline (ms) – tweak these to change the pacing ──────────────── */
   var T_WIND_END = 1150;     // every intro streak has been sucked in by now

@@ -1,6 +1,6 @@
 # Home page logo intro ("sucking wind")
 
-A splash shown on **index.html** once per browser session. Air streaks spiral
+A splash shown on **index.html** every time the page loads (including refresh). Air streaks spiral
 into the UE logo, the logo pops, then it waits for the visitor to click, tap
 or press a key before fading away to reveal the site.
 
@@ -14,7 +14,7 @@ or press a key before fading away to reveal the site.
 ## How it works
 
 1. **Before the page paints:** `intro.js` runs in `<head>`. It works out whether
-   to show the intro (not if it's already been seen this session, not in a
+   to show the intro (not in a
    background tab) and adds `ue-intro-pending` to `<html>`. A CSS
    `::before` then covers the screen immediately, so the page never flashes.
 2. **DOM ready:** it builds the overlay (`.ue-intro`), which holds a `<canvas>`
@@ -46,9 +46,8 @@ subscribe form.
 
 ## Testing
 
-- `index.html?intro=1` forces it to play (ignores "seen this session").
+- `index.html?intro=1` forces it to play.
 - `index.html?intro=0` disables it.
-- Or clear it in DevTools → Application → Session Storage → delete `ueIntroSeen`.
 
 ## Tweaking
 
@@ -81,5 +80,4 @@ and `alpha`.
   (light) and `.ue-intro.is-dark` (dark) in `styles.css`. The pre-paint cover
   uses the same background (`html.ue-intro-pending::before`, `html.ue-intro-dark`).
 
-**Show on every visit instead of once per session:** delete the
-`store("get") === "1"` check near the top of `intro.js`.
+**Show once per session instead of every load:** add back a sessionStorage check (the `store()` helper is still in `intro.js`).
