@@ -11,10 +11,11 @@
                          edges and get sucked into the UE logo, which
                          slowly "inhales" (grows from 15% to 55%).
      1080 – 1450  POP    The logo springs to full size with a small
-                         overshoot; a ring ripples out and the halo flares.
+                         overshoot; a ring ripples out (and, in dark mode,
+                         the glow behind the logo flares).
      1450 – ...   IDLE   The logo stays, breathing very gently, with a
-                         faint ongoing breeze. At 1650 a "Click to enter" /
-                         "Tap to enter" button fades in.
+                         faint ongoing breeze, until the visitor dismisses
+                         it. There is no button or text hint.
      on dismiss   LEAVE  Click / tap anywhere, or press Enter, Space or
                          Escape (works at any point, even mid-wind) →
                          the overlay fades out over 0.4s and is removed.
@@ -29,8 +30,14 @@
      "theme" = "dark" and adds body.dark. We read the same flag here.
 
    REDUCED MOTION
-     If the OS asks for reduced motion, no particles/scaling: the logo and
-     button just fade in and wait for a click/key, then fade out.
+     If the OS asks for reduced motion, no particles/scaling: the logo just
+     fades in and waits for a click/key, then fades out.
+
+   KEYBOARD / SCREEN READERS
+     The overlay itself is the control: role="button", tabindex="0",
+     aria-label="Enter site". It is focused as soon as it appears, so
+     Enter / Space / Escape work straight away; Tab keeps focus on it.
+     No focus ring is drawn unless the visitor presses Tab (keyboard use).
 
    SAFETY (it must never lock people out of the page)
      - The pre-paint cover hides itself after 4s by CSS alone, even if this
@@ -44,7 +51,7 @@
 
   var doc = document;
   var root = doc.documentElement;          // <html>
-  var KEY = "ueIntroSeen";                 // sessionStorage key
+  var KEY = "ueIntroSeen";                 // sessionStorage key (store() helper, currently unused)
   var LOGO_SRC = "UELogo-removebg-preview.png";
 
   /* ── Colours ────────────────────────────────────────────────────────
@@ -52,13 +59,15 @@
      #D8EBFC = hsl(208°, 86%, 92%). Everything here is that same 208° hue
      at different lightness, so the wind matches the logo. Each entry is
      an "r,g,b" string; alpha is added per streak. Streaks pick "main" or
-     (35% of the time) "alt". In light mode the logo colour itself would be
-     invisible on the pale background, so deeper tints of it are used. */
+     (35% of the time) "alt".
+     Light mode sits on a soft blue-grey background (#C4D2DE, set in CSS),
+     which is darker than the logo, so the logo colour itself shows up as
+     pale "air" and a deeper tint adds depth. */
   var PALETTE = {
     light: {
-      main: "144,186,223",   // #90BADF  mid tint of the logo blue
-      alt:  "102,156,204",   // #669CCC  deeper tint
-      ring: "102,156,204"    // #669CCC
+      main: "216,235,252",   // #D8EBFC  the logo colour itself
+      alt:  "114,161,202",   // #72A1CA  deeper tint of the logo blue
+      ring: "236,245,254"    // #ECF5FE  lighter tint, reads on the blue-grey
     },
     dark: {
       main: "216,235,252",   // #D8EBFC  the logo colour itself
@@ -82,7 +91,6 @@
 
   function mq(q) { try { return window.matchMedia(q).matches; } catch (e) { return false; } }
   var reduced = mq("(prefers-reduced-motion: reduce)");
-  var touch = mq("(hover: none) and (pointer: coarse)");          // phones/tablets → "Tap"
 
   // Same flag scripts.js uses for its theme toggle.
   var dark = false;
@@ -101,8 +109,6 @@
   var T_WIND_END = 1150;     // every intro streak has been sucked in by now
   var T_POP = 1080;          // logo starts its pop
   var T_POP_END = 1450;      // pop/overshoot finished, idle begins
-  var T_HINT = 1650;         // "Click to enter" appears
-  var T_REDUCED_HINT = 500;  // reduced motion: when the button appears
 
   /* ── Particle amounts – tweak for more/less wind ───────────────────── */
   var AREA_PER_STREAK = 8000;      // one streak per 8000 px² of screen…
@@ -110,8 +116,8 @@
   var IDLE_SHARE = 0.22;           // idle breeze = 22% of that (16–36 streaks)
 
   // DOM nodes and run-time state.
-  var overlay, canvas, ctx, logo, glow, enterBtn, rafId, t0 = 0, finished = false;
-  var hintTimer, inerted = [], hintShown = false;
+  var overlay, canvas, ctx, logo, glow, rafId, t0 = 0, finished = false;
+  var inerted = [];
   var W = 0, H = 0, DPR = 1, CX = 0, CY = 0, LOGO_R = 100, MAX_R = 600;
   var particles = [], idle = [];
 
@@ -131,23 +137,28 @@
   }
 
   /* ══ BUILD THE OVERLAY ═════════════════════════════════════════════════
-     <div class="ue-intro [is-dark] [ue-intro--reduced]" role="dialog">
-       <canvas>                    wind streaks + pop ring (not in reduced)
-       <div class="ue-intro__glow">  halo behind the logo  (not in reduced)
+     <div class="ue-intro [is-dark] [ue-intro--reduced]"
+          role="button" tabindex="0" aria-label="Enter site">
+       <canvas>                      wind streaks + pop ring (not in reduced)
+       <div class="ue-intro__glow">  glow behind the logo (dark mode only,
+                                     not in reduced)
        <img class="ue-intro__logo">  the PNG, original colours
-       <button class="ue-intro__enter">Click to enter</button>
      </div> */
   function build() {
     overlay = doc.createElement("div");
     overlay.className = "ue-intro" + (dark ? " is-dark" : "") + (reduced ? " ue-intro--reduced" : "");
-    // A modal dialog for screen readers; its only control is the button.
-    overlay.setAttribute("role", "dialog");
-    overlay.setAttribute("aria-modal", "true");
-    overlay.setAttribute("aria-label", "Urban Environmental");
+    // The whole overlay is one big "Enter site" button: focusable, so the
+    // keyboard works without any visible button on screen.
+    overlay.setAttribute("role", "button");
+    overlay.setAttribute("tabindex", "0");
+    overlay.setAttribute("aria-label", "Enter site");
     if (!reduced) {
       canvas = doc.createElement("canvas");
       canvas.setAttribute("aria-hidden", "true");
       overlay.appendChild(canvas);
+    }
+    if (!reduced && dark) {
+      // Light mode has no glow/halo at all – contrast comes from colours.
       glow = doc.createElement("div");
       glow.className = "ue-intro__glow";
       glow.setAttribute("aria-hidden", "true");
@@ -156,15 +167,10 @@
     logo = doc.createElement("img");
     logo.className = "ue-intro__logo";
     logo.src = LOGO_SRC;
-    logo.alt = "Urban Environmental logo";
+    logo.alt = "";                          // decorative: the overlay is labelled
+    logo.setAttribute("aria-hidden", "true");
     logo.decoding = "async";
     overlay.appendChild(logo);
-
-    enterBtn = doc.createElement("button");
-    enterBtn.type = "button";
-    enterBtn.className = "ue-intro__enter";
-    enterBtn.textContent = touch ? "Tap to enter" : "Click to enter";
-    overlay.appendChild(enterBtn);
 
     doc.body.appendChild(overlay);
 
@@ -178,29 +184,24 @@
     });
     root.classList.add("ue-intro-lock");
 
-    // Dismissal: a click/tap anywhere on the overlay (the button included,
-    // via bubbling) or the keys handled in onKey().
+    // Dismissal: a click/tap anywhere on the overlay, or the keys handled
+    // in onKey(). Focus the overlay so the keys work immediately.
     overlay.addEventListener("click", dismiss);
     doc.addEventListener("keydown", onKey, true);
-    focusEnter();
+    focusOverlay();
 
     // The real overlay now covers the page; drop the pre-paint cover.
     root.classList.remove("ue-intro-pending", "ue-intro-dark");
   }
 
-  function focusEnter() {
-    try { enterBtn.focus({ preventScroll: true }); } catch (e) { enterBtn.focus(); }
-  }
-
-  function showHint() {
-    if (hintShown || !enterBtn) return;
-    hintShown = true;
-    enterBtn.classList.add("is-shown");   // CSS fades it in and starts the pulse
+  function focusOverlay() {
+    try { overlay.focus({ preventScroll: true }); } catch (e) { overlay.focus(); }
   }
 
   /* ══ DISMISSAL ═════════════════════════════════════════════════════════
-     Enter / Space / Escape close it. Tab is kept on the button (the dialog
-     has a single control) so keyboard focus can't wander behind it. */
+     Enter / Space / Escape close it. Tab keeps focus on the overlay (it is
+     the only control) so keyboard focus can't wander behind it, and adds
+     .is-kbd so CSS shows a focus ring for keyboard users only. */
   function onKey(e) {
     if (finished) return;
     var k = e.key;
@@ -210,7 +211,8 @@
       dismiss();
     } else if (k === "Tab") {
       e.preventDefault();
-      focusEnter();
+      if (overlay) overlay.classList.add("is-kbd");
+      focusOverlay();
     }
   }
 
@@ -228,7 +230,6 @@
   function finish(immediate) {
     if (finished) return;
     finished = true;
-    clearTimeout(hintTimer);
     cleanupPage();
     if (!overlay) return;
     // Keyboard users continue from the main content, without scrolling.
@@ -240,7 +241,7 @@
     var remove = function () {
       cancelAnimationFrame(rafId);
       if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
-      overlay = canvas = ctx = enterBtn = null;
+      overlay = canvas = ctx = glow = null;
       particles = []; idle = [];
     };
     if (immediate) { remove(); return; }
@@ -403,22 +404,23 @@
     logo.style.transform = "scale(" + ls[0].toFixed(4) + ")";
     logo.style.opacity = ls[1].toFixed(3);
 
-    // Halo: faint and small during the wind, flares to full on the pop,
-    // relaxes to 35% and then pulses gently while idle.
-    var g, gs;
-    if (t < T_POP) {
-      g = 0.25 * clamp(t / T_POP, 0, 1);
-      gs = lerp(0.3, 0.6, t / T_POP);
-    } else {
-      var idleWave = 0.06 * Math.sin((t - T_POP) / 2600 * Math.PI * 2);
-      g = lerp(1, 0.35, smoothstep(0, 1, (t - T_POP) / 600)) + idleWave * smoothstep(600, 1200, t - T_POP);
-      gs = lerp(0.6, 1.25, easeOutCubic(clamp((t - T_POP) / 500, 0, 1)));
+    // Glow (dark mode only): faint and small during the wind, flares to
+    // full on the pop, relaxes to 35% and then pulses gently while idle.
+    if (glow) {
+      var g, gs;
+      if (t < T_POP) {
+        g = 0.25 * clamp(t / T_POP, 0, 1);
+        gs = lerp(0.3, 0.6, t / T_POP);
+      } else {
+        var idleWave = 0.06 * Math.sin((t - T_POP) / 2600 * Math.PI * 2);
+        g = lerp(1, 0.35, smoothstep(0, 1, (t - T_POP) / 600)) + idleWave * smoothstep(600, 1200, t - T_POP);
+        gs = lerp(0.6, 1.25, easeOutCubic(clamp((t - T_POP) / 500, 0, 1)));
+      }
+      glow.style.opacity = g.toFixed(3);
+      glow.style.transform = "translate(-50%,-50%) scale(" + gs.toFixed(3) + ")";
     }
-    glow.style.opacity = g.toFixed(3);
-    glow.style.transform = "translate(-50%,-50%) scale(" + gs.toFixed(3) + ")";
 
     draw(t);
-    if (t >= T_HINT) showHint();
 
     // Keeps running while idle; browsers pause this in background tabs.
     rafId = requestAnimationFrame(frame);
@@ -431,16 +433,14 @@
     try {
       build();
       if (reduced) {
-        // Reduced motion: CSS fades the logo in; just show the button.
-        hintTimer = setTimeout(showHint, T_REDUCED_HINT);
+        // Reduced motion: CSS fades the logo in; nothing else to animate.
         return;
       }
       ctx = canvas.getContext("2d");
       if (!ctx) {
-        // No canvas support: fall back to a static logo + button.
+        // No canvas support: fall back to a static logo.
         canvas.remove();
         logo.style.opacity = 1; logo.style.transform = "none";
-        hintTimer = setTimeout(showHint, T_REDUCED_HINT);
         return;
       }
       resize();

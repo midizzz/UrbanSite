@@ -1,13 +1,14 @@
 # Home page logo intro ("sucking wind")
 
-A splash shown on **index.html** every time the page loads (including refresh). Air streaks spiral
-into the UE logo, the logo pops, then it waits for the visitor to click, tap
-or press a key before fading away to reveal the site.
+A splash shown on **index.html** every time the page loads (including
+refresh). Air streaks spiral into the UE logo, the logo pops, then it waits
+for the visitor to click, tap or press a key before fading away to reveal the
+site. There is no on-screen button or hint; the whole overlay is the control.
 
 | File | What it holds |
 |------|---------------|
 | `intro.js` | All the behaviour: when to show it, the overlay, the canvas particles, timing, dismissal. Fully commented. |
-| `styles.css` | The **LOGO INTRO** block at the end: overlay, logo, halo, button, light/dark colours, reduced motion, safety fallbacks. |
+| `styles.css` | The **LOGO INTRO** block at the end: overlay, logo, dark-mode glow, focus ring, light/dark colours, reduced motion, safety fallbacks. |
 | `index.html` | One line in `<head>`: `<script src="intro.js"></script>` (after `styles.css`, before `scripts.js`). Remove it to turn the intro off. |
 | `UELogo-removebg-preview.png` | The logo, shown in its original colours (not recoloured). |
 
@@ -18,8 +19,10 @@ or press a key before fading away to reveal the site.
    background tab) and adds `ue-intro-pending` to `<html>`. A CSS
    `::before` then covers the screen immediately, so the page never flashes.
 2. **DOM ready:** it builds the overlay (`.ue-intro`), which holds a `<canvas>`
-   for the wind, a soft halo, the logo `<img>` and a "Click / Tap to enter"
-   button. The page behind is made `inert` and can't scroll.
+   for the wind, the logo `<img>` and, in dark mode only, a soft glow. The
+   overlay itself is the control (`role="button"`, `tabindex="0"`,
+   `aria-label="Enter site"`) and it gets focus straight away. The page behind
+   is made `inert` and can't scroll.
 3. **Animation loop** (`requestAnimationFrame`), times in ms:
    - **0–1150, wind:** 70–170 streaks start outside the screen and follow a
      spiral into the logo. Progress is eased with `prog^2.1`, so each streak
@@ -27,18 +30,20 @@ or press a key before fading away to reveal the site.
      it speeds up, and it curls tighter near the centre. The logo grows from
      15% to 55% as if breathing in.
    - **1080–1450, pop:** the logo springs to 100% with about 12% overshoot
-     ("back-out" easing). A ring ripples outward and the halo flares.
+     ("back-out" easing). A ring ripples outward; in dark mode the glow flares.
    - **1450 onwards, idle:** the logo breathes ±1.8% and a faint breeze keeps
-     flowing in (streaks are recycled). The button fades in at 1650.
+     flowing in (streaks are recycled) until it is dismissed.
 4. **Dismissal:** a click or tap anywhere, or **Enter / Space / Escape**,
    fades the overlay out over 0.4s and removes it. Focus moves to `<main>`.
-   It can be dismissed at any point, even mid-wind.
+   It can be dismissed at any point, even mid-wind. Tab keeps focus on the
+   overlay. A focus ring only appears after Tab is pressed (keyboard users),
+   never for mouse, touch or the automatic focus.
 
 **Theme:** follows the site's toggle (`localStorage.theme === "dark"`, the
 same flag `scripts.js` uses for `body.dark`).
 **Reduced motion:** with the OS "reduce motion" setting, there are no
-particles or scaling. The logo and button fade in, then it waits for a click
-as usual.
+particles or scaling. The logo fades in, then it waits for a click or key as
+usual.
 **Safety:** the CSS cover hides itself after 4s even if the JS fails. The
 intro is skipped if the page takes more than 3.5s to load, and any error
 removes the overlay. It doesn't touch `scripts.js`, the theme toggle or the
@@ -52,8 +57,8 @@ subscribe form.
 ## Tweaking
 
 **Timing** (`intro.js`, "Timeline"):
-`T_WIND_END` (streaks all arrived), `T_POP` / `T_POP_END` (pop start/end),
-`T_HINT` (when the button appears). The fade-out length is
+`T_WIND_END` (streaks all arrived), `T_POP` / `T_POP_END` (pop start/end;
+idle starts at `T_POP_END`). The fade-out length is
 `.ue-intro.is-leaving` in CSS (0.4s), plus the matching `setTimeout(remove, 450)`
 in `finish()`.
 
@@ -68,15 +73,20 @@ and `alpha`.
 
 | Use | Light mode | Dark mode |
 |-----|-----------|-----------|
-| Background | `#EEF2F6` | `#111111` (site dark bg) |
-| Logo | `#D8EBFC` (PNG as-is) + `#315372` outline/shadow | `#D8EBFC` (PNG as-is) + `#D8EBFC` glow |
-| Streaks (main / alt) | `#90BADF` / `#669CCC` | `#D8EBFC` / `#90BADF` |
-| Pop ring | `#669CCC` | `#D8EBFC` |
-| Halo | `#315372` at 16% | `#D8EBFC` at 20% |
-| Button text | `#437EB1` | `#D8EBFC` |
+| Background | `#C4D2DE` soft blue-grey (hsl 208°, 28%, 82%) | `#111111` (site dark bg) |
+| Logo | `#D8EBFC` (PNG as-is, no outline/shadow) | `#D8EBFC` (PNG as-is) + `#D8EBFC` glow |
+| Streaks (main / alt) | `#D8EBFC` / `#72A1CA` | `#D8EBFC` / `#90BADF` |
+| Pop ring | `#ECF5FE` | `#D8EBFC` |
+| Glow behind logo | none | `#D8EBFC` at 20% |
+| Keyboard focus ring | `#ECF5FE` | `#90BADF` |
+
+In light mode the logo stays visible through colour alone: the blue-grey
+background is a little darker than the pale logo, so the logo reads as a
+lighter shape on it. If you want more contrast, darken `--ue-intro-bg` a
+little (e.g. `#B9C8D5`). Keep it in the 208° hue so it still matches.
 
 - Streak and ring colours: `PALETTE` at the top of `intro.js`.
-- Background, halo, logo shadow, button: the CSS variables in `.ue-intro`
+- Background, glow, logo filter, focus ring: the CSS variables in `.ue-intro`
   (light) and `.ue-intro.is-dark` (dark) in `styles.css`. The pre-paint cover
   uses the same background (`html.ue-intro-pending::before`, `html.ue-intro-dark`).
 
