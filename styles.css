@@ -626,6 +626,97 @@ main.metrics > .subscribe-block {
   main.metrics > .cards:not(.subscribe-block) { grid-template-columns: repeat(8, 1fr); }
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   BUTTONS: no visible border, a slight 3D look instead
+   ════════════════════════════════════════════════════════════════════
+   Applies to the form buttons (Subscribe, Send request), the Metrics tab
+   buttons and the file-upload "Choose Files" button. The 1px border stays
+   but is transparent (so sizes don't change); depth comes from a soft
+   top highlight plus a small drop shadow. Pressing pushes the button
+   down 1px. Keyboard focus keeps a clear outline. The theme toggle is a
+   bare emoji with no border or background, so it is left as it is.
+   Kept mid-file, away from the intro styles at the end. */
+:root {
+  --btn-shadow: inset 0 1px 0 rgba(255,255,255,.18),
+                0 1px 2px rgba(0,0,0,.15),
+                0 2px 6px rgba(0,0,0,.08);
+  --btn-shadow-hover: inset 0 1px 0 rgba(255,255,255,.22),
+                      0 2px 4px rgba(0,0,0,.16),
+                      0 4px 10px rgba(0,0,0,.10);
+  --btn-shadow-active: inset 0 1px 2px rgba(0,0,0,.20);
+  --btn-focus: #093f7c;
+}
+body.dark {
+  /* on #111 the shadow needs to be darker, the highlight a little softer */
+  --btn-shadow: inset 0 1px 0 rgba(255,255,255,.12),
+                0 1px 2px rgba(0,0,0,.60),
+                0 2px 6px rgba(0,0,0,.40);
+  --btn-shadow-hover: inset 0 1px 0 rgba(255,255,255,.16),
+                      0 2px 4px rgba(0,0,0,.65),
+                      0 4px 10px rgba(0,0,0,.45);
+  --btn-shadow-active: inset 0 1px 3px rgba(0,0,0,.55);
+  --btn-focus: #9cc3e6;
+}
+
+.tab-btn,
+.quote-form button,
+.subscribe-form button {
+  border-color: transparent;
+  box-shadow: var(--btn-shadow);
+  transition: box-shadow .15s, transform .05s, filter .15s;
+}
+body.dark .tab-btn {
+  border-color: transparent;            /* beats the dark-mode #666 border */
+}
+.quote-form input[type="file"]::file-selector-button {
+  font-family: 'Montserrat', sans-serif;
+  padding: 0.35rem 0.8rem;
+  margin-right: 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #eee;
+  color: #111;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow);
+  transition: box-shadow .15s, transform .05s;
+}
+body.dark .quote-form input[type="file"]::file-selector-button {
+  background: #333;
+  color: #fdfdfd;
+}
+
+.tab-btn:hover,
+.quote-form button:hover,
+.subscribe-form button:hover {
+  box-shadow: var(--btn-shadow-hover);
+  filter: brightness(1.05);
+}
+.quote-form input[type="file"]:hover::file-selector-button {
+  box-shadow: var(--btn-shadow-hover);
+}
+
+.tab-btn:active,
+.quote-form button:active,
+.subscribe-form button:active {
+  box-shadow: var(--btn-shadow-active);
+  transform: translateY(1px);
+  filter: none;
+}
+.quote-form input[type="file"]:active::file-selector-button {
+  box-shadow: var(--btn-shadow-active);
+  transform: translateY(1px);
+}
+
+/* Keyboard focus: a visible ring (mouse clicks don't show it) */
+.tab-btn:focus-visible,
+.quote-form button:focus-visible,
+.subscribe-form button:focus-visible,
+.quote-form input[type="file"]:focus-visible,
+#theme-toggle:focus-visible {
+  outline: 2px solid var(--btn-focus);
+  outline-offset: 2px;
+}
+
 a.card.jump {
   color: inherit;
   text-decoration: none;
