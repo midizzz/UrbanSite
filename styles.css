@@ -184,7 +184,7 @@ body.dark nav a {
   font-weight: 500;  
   font-family: 'Montserrat', sans-serif;
   margin: 0 0.5rem;
-  color: #2f2e2e;
+  color: #8c8c8c;  /* was #2f2e2e (1.4:1 on #111); now ~5.6:1, WCAG AA */
   text-decoration: none;
 }  
 body.dark {
