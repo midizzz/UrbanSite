@@ -584,6 +584,18 @@ main.metrics > .subscribe-block {
     display: inline-block;
     padding: 0.45rem 0;
   }
+  /* Line the top of the logo and the sun/moon toggle up with the top of
+     the first row of link text (cap height, inside the 0.45rem padding).
+     Measured on screen: text top is ~23.6px from the top of the page.
+     The logo image (inline style top: 10px) has ~4.1px of transparent
+     space above the artwork, so it moves to 19px. */
+  img[alt="Urban Environmental Logo"] {
+    top: 19px !important;              /* !important beats the inline style */
+  }
+  #theme-toggle {
+    align-self: flex-start;            /* stop centring it in the taller header */
+    margin-top: 6px;                   /* measured: puts the emoji top on the text top */
+  }
 }
 
 /* Rows of exactly 4 cards (Engineering photos): 2 x 2 on tablet, so the
