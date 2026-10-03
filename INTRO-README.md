@@ -30,7 +30,8 @@ site. There is no on-screen button or hint; the whole overlay is the control.
      it speeds up, and it curls tighter near the centre. The logo grows from
      15% to 55% as if breathing in.
    - **1080–1450, pop:** the logo springs to 100% with about 12% overshoot
-     ("back-out" easing). A ring ripples outward; in dark mode the glow flares.
+     ("back-out" easing); in dark mode the glow flares. No ring or circle is
+     drawn around the logo – the pop is just the scale-up.
    - **1450 onwards, idle:** the logo breathes ±1.8% and a faint breeze keeps
      flowing in (streaks are recycled) until it is dismissed.
 4. **Dismissal:** a click or tap anywhere, or **Enter / Space / Escape**,
@@ -76,7 +77,6 @@ and `alpha`.
 | Background | `#C4D2DE` soft blue-grey (hsl 208°, 28%, 82%) | `#111111` (site dark bg) |
 | Logo | `#D8EBFC` (PNG as-is, no outline/shadow) | `#D8EBFC` (PNG as-is) + `#D8EBFC` glow |
 | Streaks (main / alt) | `#D8EBFC` / `#72A1CA` | `#D8EBFC` / `#90BADF` |
-| Pop ring | `#ECF5FE` | `#D8EBFC` |
 | Glow behind logo | none | `#D8EBFC` at 20% |
 | Keyboard focus ring | `#ECF5FE` | `#90BADF` |
 
@@ -85,7 +85,7 @@ background is a little darker than the pale logo, so the logo reads as a
 lighter shape on it. If you want more contrast, darken `--ue-intro-bg` a
 little (e.g. `#B9C8D5`). Keep it in the 208° hue so it still matches.
 
-- Streak and ring colours: `PALETTE` at the top of `intro.js`.
+- Streak colours: `PALETTE` at the top of `intro.js`.
 - Background, glow, logo filter, focus ring: the CSS variables in `.ue-intro`
   (light) and `.ue-intro.is-dark` (dark) in `styles.css`. The pre-paint cover
   uses the same background (`html.ue-intro-pending::before`, `html.ue-intro-dark`).

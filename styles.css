@@ -488,7 +488,7 @@ body.dark a.card.jump:hover {
         once the DOM is ready). The overlay itself is the "Enter site"
         control (role=button, tabindex=0) – there is no visible button.
         Contains, back to front:
-          canvas            → the "sucking wind" streaks + pop ring
+          canvas            → the "sucking wind" streaks (no pop ring)
           .ue-intro__glow   → soft glow behind the logo (dark mode only)
           .ue-intro__logo   → the UE logo PNG in its original colours
      3. .is-leaving                     – added on dismissal → 0.4s fade out.
@@ -496,13 +496,13 @@ body.dark a.card.jump:hover {
    Colour palette – all taken from the logo itself.
    UELogo-removebg-preview.png is a single colour: #D8EBFC
    (hsl 208°, 86%, 92%). Every other colour below is the same 208° hue,
-   just lighter/darker, so the streaks, ring and glow match the logo:
+   just lighter/darker, so the streaks and glow match the logo:
      #D8EBFC  logo colour (never recoloured) – also the main streak colour
      #C4D2DE  light-mode background: a soft blue-grey of the logo hue
               (hsl 208°, 28%, 82%). Darker than the logo, so the pale logo
               stands out by colour alone – no outline, shadow or halo.
      #72A1CA  deeper tint – light-mode secondary streaks
-     #ECF5FE  lighter tint – light-mode pop ring
+     #ECF5FE  lighter tint – light-mode keyboard focus ring
      #90BADF  mid tint   – dark-mode secondary streaks
      #111111  dark-mode background (same as the site's dark mode body)
    The particle colours themselves are set in intro.js (PALETTE).

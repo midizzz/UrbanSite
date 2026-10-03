@@ -11,8 +11,8 @@
                          edges and get sucked into the UE logo, which
                          slowly "inhales" (grows from 15% to 55%).
      1080 – 1450  POP    The logo springs to full size with a small
-                         overshoot; a ring ripples out (and, in dark mode,
-                         the glow behind the logo flares).
+                         overshoot (in dark mode the glow behind the logo
+                         flares). No ring or circle is drawn.
      1450 – ...   IDLE   The logo stays, breathing very gently, with a
                          faint ongoing breeze, until the visitor dismisses
                          it. There is no button or text hint.
@@ -59,20 +59,19 @@
      #D8EBFC = hsl(208°, 86%, 92%). Everything here is that same 208° hue
      at different lightness, so the wind matches the logo. Each entry is
      an "r,g,b" string; alpha is added per streak. Streaks pick "main" or
-     (35% of the time) "alt".
+     (35% of the time) "alt". (There is no pop ring any more, so no ring
+     colour.)
      Light mode sits on a soft blue-grey background (#C4D2DE, set in CSS),
      which is darker than the logo, so the logo colour itself shows up as
      pale "air" and a deeper tint adds depth. */
   var PALETTE = {
     light: {
       main: "216,235,252",   // #D8EBFC  the logo colour itself
-      alt:  "114,161,202",   // #72A1CA  deeper tint of the logo blue
-      ring: "236,245,254"    // #ECF5FE  lighter tint, reads on the blue-grey
+      alt:  "114,161,202"    // #72A1CA  deeper tint of the logo blue
     },
     dark: {
       main: "216,235,252",   // #D8EBFC  the logo colour itself
-      alt:  "144,186,223",   // #90BADF  mid tint
-      ring: "216,235,252"    // #D8EBFC
+      alt:  "144,186,223"    // #90BADF  mid tint
     }
   };
 
@@ -139,7 +138,7 @@
   /* ══ BUILD THE OVERLAY ═════════════════════════════════════════════════
      <div class="ue-intro [is-dark] [ue-intro--reduced]"
           role="button" tabindex="0" aria-label="Enter site">
-       <canvas>                      wind streaks + pop ring (not in reduced)
+       <canvas>                      wind streaks (not in reduced)
        <div class="ue-intro__glow">  glow behind the logo (dark mode only,
                                      not in reduced)
        <img class="ue-intro__logo">  the PNG, original colours
@@ -360,19 +359,8 @@
       }
       drawStreak(p, t);
     }
-
-    // POP ring: an ellipse expanding from the logo outward over 520ms,
-    // fading and thinning as it grows.
-    var rp = (t - T_POP) / 520;
-    if (rp > 0 && rp < 1) {
-      var rr = LOGO_R * lerp(0.9, 2.6, easeOutCubic(rp));
-      ctx.globalCompositeOperation = "source-over";
-      ctx.beginPath();
-      ctx.ellipse(CX, CY, rr, rr * 0.82, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = "rgba(" + COLORS.ring + "," + ((dark ? 0.5 : 0.45) * (1 - rp)).toFixed(3) + ")";
-      ctx.lineWidth = lerp(3, 0.5, rp);
-      ctx.stroke();
-    }
+    // (The pop itself is just the logo's scale-up in logoState() – no ring
+    // or circle is drawn around it.)
   }
 
   /* ══ LOGO SCALE / OPACITY CURVE ════════════════════════════════════════
