@@ -287,6 +287,108 @@ body.dark .card-img.diagram {
   }
 }
 
+/* PROJECTS card (Engineering, beside the quote form): a photo slideshow.
+   Photos stack on top of each other and fade; scripts.js
+   (initProjectSlideshow) moves .is-active. The card is a flex column so
+   the slideshow fills whatever height the quote form card sets. */
+.card.projects {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-slideshow {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 240px;
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #e8eef4;
+}
+
+body.dark .project-slideshow {
+  background: #1a1a1a;
+}
+
+.project-slides img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.project-slides img.is-active {
+  opacity: 1;
+}
+
+.project-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(17, 17, 17, 0.35);
+  color: #fdfdfd;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.project-nav.prev { left: 0.5rem; }
+.project-nav.next { right: 0.5rem; }
+
+.project-slideshow:hover .project-nav,
+.project-nav:focus-visible {
+  opacity: 1;
+}
+
+.project-nav:hover {
+  background: rgba(17, 17, 17, 0.55);
+}
+
+.project-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.6rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.project-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(253, 253, 253, 0.55);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.project-dot.is-active {
+  background: #9cc3e6;                 /* the site's pale blue accent */
+  transform: scale(1.2);
+}
+
+.project-nav:focus-visible,
+.project-dot:focus-visible {
+  outline: 2px solid var(--btn-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-slides img { transition: none; }
+}
+
 .quote-form {
   display: grid;
   gap: 0.75rem;
@@ -513,7 +615,7 @@ main.metrics > .subscribe-block {
    the same height.
      .cta-row  - Contact + Subscribe (every page)
      .pair-row - shared class for other pairs, e.g. Engineering:
-                 Quote + Archive, and the Treasury / Software enquire
+                 Quote + Projects, and the Treasury / Software enquire
                  rows, which are ready for a second card (a lone card
                  spans the full row, see below). */
 @media (min-width: 700px) {
