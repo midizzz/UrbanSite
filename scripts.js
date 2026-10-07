@@ -353,6 +353,49 @@ function initScreenshot() {
   });
 }
 
+// Engineering PROJECTS card: fade between photos every data-interval ms
+// (default 4s). Pauses on hover/focus; no autoplay with reduced motion.
+function initProjectSlideshow() {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  document.querySelectorAll(".project-slideshow").forEach(show => {
+    const slides = show.querySelectorAll(".project-slide");
+    const dots = show.querySelectorAll(".project-dot");
+    if (slides.length < 2) return;
+
+    const interval = parseInt(show.dataset.interval, 10) || 4000;
+    let current = 0;
+    let timer = null;
+
+    const goTo = i => {
+      current = (i + slides.length) % slides.length;
+      slides.forEach((s, n) => s.classList.toggle("is-active", n === current));
+      dots.forEach((d, n) => {
+        d.classList.toggle("is-active", n === current);
+        d.setAttribute("aria-selected", n === current ? "true" : "false");
+      });
+    };
+
+    const stop = () => { clearInterval(timer); timer = null; };
+    const start = () => {
+      if (reduceMotion || timer) return;
+      timer = setInterval(() => goTo(current + 1), interval);
+    };
+
+    show.querySelector(".project-nav.prev")?.addEventListener("click", () => goTo(current - 1));
+    show.querySelector(".project-nav.next")?.addEventListener("click", () => goTo(current + 1));
+    dots.forEach((d, n) => d.addEventListener("click", () => goTo(n)));
+
+    show.addEventListener("mouseenter", stop);
+    show.addEventListener("mouseleave", start);
+    show.addEventListener("focusin", stop);
+    show.addEventListener("focusout", e => { if (!show.contains(e.relatedTarget)) start(); });
+
+    goTo(0);
+    start();
+  });
+}
+
 // ────────────────────────────────────────────────
 //  MAIN DATA LOADER
 // ────────────────────────────────────────────────
@@ -387,6 +430,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initQuoteForm();
   initSubscribeForm();
   initScreenshot();
+  initProjectSlideshow();
 
   const currencySelect = document.getElementById('currencySelect');
   if (currencySelect) {

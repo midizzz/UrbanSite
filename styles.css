@@ -184,7 +184,7 @@ body.dark nav a {
   font-weight: 500;  
   font-family: 'Montserrat', sans-serif;
   margin: 0 0.5rem;
-  color: #2f2e2e;
+  color: #8c8c8c;  /* was #2f2e2e (1.4:1 on #111); now ~5.6:1, WCAG AA */
   text-decoration: none;
 }  
 body.dark {
@@ -285,6 +285,108 @@ body.dark .card-img.diagram {
   .archive-list {
     columns: 1;
   }
+}
+
+/* PROJECTS card (Engineering, beside the quote form): a photo slideshow.
+   Photos stack on top of each other and fade; scripts.js
+   (initProjectSlideshow) moves .is-active. The card is a flex column so
+   the slideshow fills whatever height the quote form card sets. */
+.card.projects {
+  display: flex;
+  flex-direction: column;
+}
+
+.project-slideshow {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 240px;
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #e8eef4;
+}
+
+body.dark .project-slideshow {
+  background: #1a1a1a;
+}
+
+.project-slides img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.project-slides img.is-active {
+  opacity: 1;
+}
+
+.project-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.25rem;
+  height: 2.25rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(17, 17, 17, 0.35);
+  color: #fdfdfd;
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, background 0.2s;
+}
+
+.project-nav.prev { left: 0.5rem; }
+.project-nav.next { right: 0.5rem; }
+
+.project-slideshow:hover .project-nav,
+.project-nav:focus-visible {
+  opacity: 1;
+}
+
+.project-nav:hover {
+  background: rgba(17, 17, 17, 0.55);
+}
+
+.project-dots {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.6rem;
+  display: flex;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.project-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(253, 253, 253, 0.55);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.project-dot.is-active {
+  background: #9cc3e6;                 /* the site's pale blue accent */
+  transform: scale(1.2);
+}
+
+.project-nav:focus-visible,
+.project-dot:focus-visible {
+  outline: 2px solid var(--btn-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .project-slides img { transition: none; }
 }
 
 .quote-form {
@@ -455,6 +557,268 @@ main.metrics > .subscribe-block {
   margin-top: 2rem;
 }
 
+/* ════════════════════════════════════════════════════════════════════
+   WIDE LAYOUT: subscribe + contact cards (branch layout-wide)
+   ════════════════════════════════════════════════════════════════════
+   The page stays full width. This block only:
+     1. lets the subscribe form fill its card once the card is wide
+        enough (Name | Email side by side, plan checkboxes in one row,
+        button on the right). Narrow cards and mobile stay stacked.
+     2. puts the contact card beside the subscribe card (.cta-row, on
+        every page): 50/50 from 700px up, one column on phones.
+     3. makes every card row stack the same way: one column on phones
+        (under 700px), and no lone card left on a row of 4 or on Metrics.
+   Kept away from the end of the file so it merges cleanly with the
+   logo-intro styles, which are appended at the end. */
+
+/* The subscribe card is a size container, so its form reacts to the
+   card's own width (full-width alone, or half width in .cta-row). */
+.card.subscribe {
+  container-type: inline-size;
+}
+
+@container (min-width: 560px) {
+  .subscribe-form {
+    max-width: none;                 /* drop the 40rem / 640px cap */
+    grid-template-columns: 1fr 1fr;  /* Name | Email */
+    column-gap: 1.5rem;
+    align-items: end;                /* button lines up with the checkboxes */
+  }
+  .subscribe-form .plan-options {
+    grid-auto-flow: column;          /* Annual  Engineering+ in one row */
+    justify-content: start;
+    column-gap: 1.5rem;
+  }
+  .subscribe-form button {
+    justify-self: end;               /* button on the right */
+  }
+  .subscribe-form .subscribe-status {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Phones (under 700px): every card row is a single column. Above that
+   the original auto-fit grid applies. 700px matches .archive-list. */
+@media (max-width: 699px) {
+  .cards {
+    grid-template-columns: minmax(0, 1fr);  /* minmax(0,..) so a wide child
+                                               (file input) can't push a card
+                                               past the screen edge */
+  }
+  .quote-form input[type="file"] {
+    max-width: 100%;
+  }
+}
+
+/* Two-card rows: 50/50 from 700px up (tablet and desktop), one column
+   on phones (rule above). The grid's default stretch gives both cards
+   the same height.
+     .cta-row  - Contact + Subscribe (every page)
+     .pair-row - shared class for other pairs, e.g. Engineering:
+                 Quote + Projects, and the Treasury / Software enquire
+                 rows, which are ready for a second card (a lone card
+                 spans the full row, see below). */
+@media (min-width: 700px) {
+  .cards.cta-row,
+  .cards.pair-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .cards.cta-row .card.subscribe,
+  .cards.pair-row .card.archive {
+    grid-column: auto;               /* undo the full-row span */
+  }
+}
+
+/* A .pair-row with only ONE card (Engineering: ENQUIRE TREASURY and
+   ENQUIRE SOFTWARE for now) spans the full row, and its form spreads out
+   sideways as the card gets wider. With two cards (50/50) none of this
+   applies and the form stays stacked inside its half-width card.
+   The card is a size container, so the steps follow the card's width:
+     under 640px   stacked (as before)
+     640-1099px    Name | Email, Details full width, button right
+     1100px+       Name + Email stacked left, Details beside them, button right */
+.cards.pair-row > .card:only-child {
+  grid-column: 1 / -1;
+  container-type: inline-size;
+}
+
+@container (min-width: 640px) {
+  .pair-row > .card:only-child .quote-form {
+    max-width: none;                     /* drop the 40rem cap */
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "name    email"
+      "details details"
+      ".       button";
+    column-gap: 1.5rem;
+  }
+  .pair-row > .card:only-child .quote-form label:nth-of-type(1) { grid-area: name; }
+  .pair-row > .card:only-child .quote-form label:nth-of-type(2) { grid-area: email; }
+  .pair-row > .card:only-child .quote-form label:nth-of-type(3) { grid-area: details; }
+  .pair-row > .card:only-child .quote-form button { grid-area: button; justify-self: end; }
+}
+
+@container (min-width: 1100px) {
+  .pair-row > .card:only-child .quote-form {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    grid-template-areas:
+      "name    details"
+      "email   details"
+      ".       button";
+  }
+  /* Details textarea fills the height of Name + Email beside it */
+  .pair-row > .card:only-child .quote-form label:nth-of-type(3) {
+    grid-template-rows: auto 1fr;
+  }
+  .pair-row > .card:only-child .quote-form textarea {
+    height: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+  }
+}
+
+/* Phone nav: the links wrap onto 2-3 lines next to the logo, with rows
+   only 19px apart. On phones each link gets 0.45rem top/bottom padding
+   (inline-block so it counts), so rows are ~33px apart (about +75%) and
+   the tap targets are taller. Desktop and tablet are unchanged. */
+@media (max-width: 699px) {
+  nav a {
+    display: inline-block;
+    padding: 0.45rem 0;
+  }
+  /* Line the top of the logo and the sun/moon toggle up with the top of
+     the first row of link text (cap height, inside the 0.45rem padding).
+     Measured on screen: text top is ~23.6px from the top of the page.
+     The logo image (inline style top: 10px) has ~4.1px of transparent
+     space above the artwork, so it moves to 19px. */
+  img[alt="Urban Environmental Logo"] {
+    top: 19px !important;              /* !important beats the inline style */
+  }
+  #theme-toggle {
+    align-self: flex-start;            /* stop centring it in the taller header */
+    margin-top: 6px;                   /* measured: puts the emoji top on the text top */
+  }
+}
+
+/* Rows of exactly 4 cards (Engineering photos): 2 x 2 on tablet, so the
+   auto-fit grid never leaves 3 + 1. 4 across from 1100px. */
+@media (min-width: 700px) and (max-width: 1099px) {
+  .cards:has(> .card:nth-child(4):last-child) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1100px) {
+  .cards:has(> .card:nth-child(4):last-child) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Metrics: 24 cards, so use column counts that divide 24 evenly
+   (3 / 4 / 6 / 8) instead of auto-fit, which leaves short last rows. */
+@media (min-width: 700px) {
+  main.metrics > .cards:not(.subscribe-block) { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1024px) {
+  main.metrics > .cards:not(.subscribe-block) { grid-template-columns: repeat(4, 1fr); }
+}
+@media (min-width: 1400px) {
+  main.metrics > .cards:not(.subscribe-block) { grid-template-columns: repeat(6, 1fr); }
+}
+@media (min-width: 2000px) {
+  main.metrics > .cards:not(.subscribe-block) { grid-template-columns: repeat(8, 1fr); }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   BUTTONS: no visible border, a slight 3D look instead
+   ════════════════════════════════════════════════════════════════════
+   Applies to the form buttons (Subscribe, Send request), the Metrics tab
+   buttons and the file-upload "Choose Files" button. The 1px border stays
+   but is transparent (so sizes don't change); depth comes from a soft
+   top highlight plus a small drop shadow. Pressing pushes the button
+   down 1px. Keyboard focus keeps a clear outline. The theme toggle is a
+   bare emoji with no border or background, so it is left as it is.
+   Kept mid-file, away from the intro styles at the end. */
+:root {
+  --btn-shadow: inset 0 1px 0 rgba(255,255,255,.18),
+                0 1px 2px rgba(0,0,0,.15),
+                0 2px 6px rgba(0,0,0,.08);
+  --btn-shadow-hover: inset 0 1px 0 rgba(255,255,255,.22),
+                      0 2px 4px rgba(0,0,0,.16),
+                      0 4px 10px rgba(0,0,0,.10);
+  --btn-shadow-active: inset 0 1px 2px rgba(0,0,0,.20);
+  --btn-focus: #093f7c;
+}
+body.dark {
+  /* on #111 the shadow needs to be darker, the highlight a little softer */
+  --btn-shadow: inset 0 1px 0 rgba(255,255,255,.12),
+                0 1px 2px rgba(0,0,0,.60),
+                0 2px 6px rgba(0,0,0,.40);
+  --btn-shadow-hover: inset 0 1px 0 rgba(255,255,255,.16),
+                      0 2px 4px rgba(0,0,0,.65),
+                      0 4px 10px rgba(0,0,0,.45);
+  --btn-shadow-active: inset 0 1px 3px rgba(0,0,0,.55);
+  --btn-focus: #9cc3e6;
+}
+
+.tab-btn,
+.quote-form button,
+.subscribe-form button {
+  border-color: transparent;
+  box-shadow: var(--btn-shadow);
+  transition: box-shadow .15s, transform .05s, filter .15s;
+}
+body.dark .tab-btn {
+  border-color: transparent;            /* beats the dark-mode #666 border */
+}
+.quote-form input[type="file"]::file-selector-button {
+  font-family: 'Montserrat', sans-serif;
+  padding: 0.35rem 0.8rem;
+  margin-right: 0.75rem;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #eee;
+  color: #111;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow);
+  transition: box-shadow .15s, transform .05s;
+}
+body.dark .quote-form input[type="file"]::file-selector-button {
+  background: #333;
+  color: #fdfdfd;
+}
+
+.tab-btn:hover,
+.quote-form button:hover,
+.subscribe-form button:hover {
+  box-shadow: var(--btn-shadow-hover);
+  filter: brightness(1.05);
+}
+.quote-form input[type="file"]:hover::file-selector-button {
+  box-shadow: var(--btn-shadow-hover);
+}
+
+.tab-btn:active,
+.quote-form button:active,
+.subscribe-form button:active {
+  box-shadow: var(--btn-shadow-active);
+  transform: translateY(1px);
+  filter: none;
+}
+.quote-form input[type="file"]:active::file-selector-button {
+  box-shadow: var(--btn-shadow-active);
+  transform: translateY(1px);
+}
+
+/* Keyboard focus: a visible ring (mouse clicks don't show it) */
+.tab-btn:focus-visible,
+.quote-form button:focus-visible,
+.subscribe-form button:focus-visible,
+.quote-form input[type="file"]:focus-visible,
+#theme-toggle:focus-visible {
+  outline: 2px solid var(--btn-focus);
+  outline-offset: 2px;
+}
+
 a.card.jump {
   color: inherit;
   text-decoration: none;
@@ -472,4 +836,177 @@ body.dark a.card.jump:hover {
 
 .segment {
   scroll-margin-top: 1.5rem;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   LOGO INTRO  (home page only, once per browser session)
+   ════════════════════════════════════════════════════════════════════
+   The behaviour lives in intro.js; this block is only the look.
+   See INTRO-README.md for an overview and tweaking guide.
+
+   How the pieces fit together:
+     1. html.ue-intro-pending::before  – an instant full-screen cover that
+        intro.js switches on from <head>, so the page never flashes before
+        the intro appears.
+     2. .ue-intro                       – the real overlay (built by intro.js
+        once the DOM is ready). The overlay itself is the "Enter site"
+        control (role=button, tabindex=0) – there is no visible button.
+        Contains, back to front:
+          canvas            → the "sucking wind" streaks (no pop ring)
+          .ue-intro__glow   → soft glow behind the logo (dark mode only)
+          .ue-intro__logo   → the UE logo PNG in its original colours
+     3. .is-leaving                     – added on dismissal → 0.4s fade out.
+
+   Colour palette – all taken from the logo itself.
+   UELogo-removebg-preview.png is a single colour: #D8EBFC
+   (hsl 208°, 86%, 92%). Every other colour below is the same 208° hue,
+   just lighter/darker, so the streaks and glow match the logo:
+     #D8EBFC  logo colour in BOTH modes (never recoloured) – also the main
+              streak colour; dark-mode glow is this colour at 9–11%
+     #C4D2DE  light-mode background: a soft blue-grey of the logo hue
+              (hsl 208°, 28%, 82%). Darker than the logo, so the pale logo
+              stands out by colour; no outline or halo
+     #315372  dark shade – light-mode logo shadow, at 9% only
+     #72A1CA  deeper tint – light-mode secondary streaks
+     #ECF5FE  lighter tint – light-mode keyboard focus ring
+     #90BADF  mid tint   – dark-mode secondary streaks
+     #111111  dark-mode background (same as the site's dark mode body)
+   The particle colours themselves are set in intro.js (PALETTE).
+   ════════════════════════════════════════════════════════════════════ */
+
+/* 1. Pre-paint cover.
+   Painted before <body> is parsed. If JavaScript fails or the page loads
+   slowly, the failsafe animation hides it after 4s so content is never
+   blocked. intro.js removes this class as soon as the real overlay exists. */
+html.ue-intro-pending::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  background: var(--ue-intro-bg, #C4D2DE);
+  animation: ue-intro-failsafe 0.3s ease-out 4s forwards;
+}
+
+html.ue-intro-dark { --ue-intro-bg: #111; }
+
+/* 2. The overlay (light theme values by default).
+   Light mode: soft blue-grey background, logo as-is (#D8EBFC) with a VERY
+   subtle soft shadow in a dark shade of the logo blue (#315372 at 9%).
+   No outline, no glow. */
+.ue-intro {
+  --ue-intro-bg: #C4D2DE;
+  --ue-intro-glow: transparent;          /* no glow in light mode */
+  --ue-intro-logo-shadow: drop-shadow(0 6px 16px rgba(49, 83, 114, 0.09));
+  --ue-intro-focus: #ECF5FE;             /* keyboard focus ring */
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;            /* above everything on the page */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ue-intro-bg);
+  cursor: pointer;                /* the whole overlay is clickable */
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;                  /* no focus ring for mouse/touch/auto-focus */
+}
+
+/* The overlay is focused automatically when it appears; only show a ring
+   once the visitor uses the keyboard (intro.js adds .is-kbd on Tab). */
+.ue-intro.is-kbd:focus-visible {
+  outline: 2px solid var(--ue-intro-focus);
+  outline-offset: -8px;
+}
+
+/* Dark theme: chosen by intro.js from the site's saved theme
+   (localStorage "theme" === "dark", the same flag scripts.js uses). */
+.ue-intro.is-dark {
+  --ue-intro-bg: #111;
+  /* Subtle glows in the logo colour (about half the earlier strength):
+     the flare behind the logo peaks at 9%, the glow hugging the letters
+     is 11%. */
+  --ue-intro-glow: rgba(216, 235, 252, 0.09);
+  --ue-intro-logo-shadow: drop-shadow(0 0 18px rgba(216, 235, 252, 0.11));
+  --ue-intro-focus: #90BADF;
+}
+
+/* While the intro is up, the page behind can't scroll. */
+html.ue-intro-lock,
+html.ue-intro-lock body {
+  overflow: hidden;
+}
+
+/* Canvas for the wind streaks: fills the overlay, ignores the mouse. */
+.ue-intro canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Glow behind the logo – dark mode only (intro.js doesn't create it in
+   light mode). intro.js animates its transform/opacity each frame
+   (dim during the wind, flares on the pop, gently pulses while idle). */
+.ue-intro__glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(80vw, 520px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--ue-intro-glow) 0%, transparent 65%);
+  transform: translate(-50%, -50%) scale(0.3);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* The logo: the original PNG, untouched colours – it renders as exactly
+   #D8EBFC in both modes (brand rule). intro.js animates its scale/opacity
+   (inhale → pop → breathe); opacity is 1 from the pop onwards. The
+   drop-shadow filter (subtle shadow in light mode, subtle glow in dark
+   mode) only paints *around* the letter shapes; it never tints the logo
+   itself. */
+.ue-intro__logo {
+  position: relative;
+  display: block;
+  width: min(46vw, 260px);
+  height: auto;
+  aspect-ratio: 592 / 378;        /* native PNG size, avoids layout jump */
+  filter: var(--ue-intro-logo-shadow);
+  transform: scale(0.15);
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  will-change: transform, opacity;
+}
+
+/* 3. Dismissal: fade the whole overlay out, then intro.js removes it. */
+.ue-intro.is-leaving {
+  transition: opacity 0.4s ease-out, visibility 0s linear 0.4s;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Reduced motion (prefers-reduced-motion): no particles or scaling; the
+   logo simply fades in, then waits for a click/key as normal. */
+.ue-intro--reduced .ue-intro__logo {
+  transform: none;
+  animation: ue-intro-fadein 0.4s ease-out forwards;
+}
+
+/* After dismissal intro.js moves focus to <main> (tabindex=-1) so keyboard
+   users continue from the page content; hide the focus ring on it. */
+main[tabindex="-1"]:focus { outline: none; }
+
+@keyframes ue-intro-fadein {
+  to { opacity: 1; }
+}
+
+/* Used by the pre-paint cover's 4s safety timeout. */
+@keyframes ue-intro-failsafe {
+  to { opacity: 0; visibility: hidden; pointer-events: none; }
 }
